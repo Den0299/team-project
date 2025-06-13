@@ -3,7 +3,6 @@ package co.develhope.team_project.entities;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Entity
 public class Fumetto {
@@ -24,19 +23,9 @@ public class Fumetto {
 
     private boolean disponibilePerAsta;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "wishlists",
-            joinColumns = @JoinColumn(name = "fumetto_id"),
-            inverseJoinColumns = @JoinColumn(name = "wishlist_id"))
-    private List<Wishlist> wishlists;
-
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "copiaFumetto_id")
-    private List<CopiaFumetto> copieFumetto;
-
     public Fumetto() {}
 
-    public Fumetto(Long fumettoId, String titolo, String autore, String editore, String descrizione, LocalDate dataPubblicazione, boolean disponibilePerAsta, List<Wishlist> wishlists, List<CopiaFumetto> copieFumetto) {
+    public Fumetto(Long fumettoId, String titolo, String autore, String editore, String descrizione, LocalDate dataPubblicazione, boolean disponibilePerAsta) {
         this.fumettoId = fumettoId;
         this.titolo = titolo;
         this.autore = autore;
@@ -44,8 +33,6 @@ public class Fumetto {
         this.descrizione = descrizione;
         this.dataPubblicazione = dataPubblicazione;
         this.disponibilePerAsta = disponibilePerAsta;
-        this.wishlists = wishlists;
-        this.copieFumetto = copieFumetto;
     }
 
     public Long getFumettoId() {
@@ -102,21 +89,5 @@ public class Fumetto {
 
     public void setDisponibilePerAsta(boolean disponibilePerAsta) {
         this.disponibilePerAsta = disponibilePerAsta;
-    }
-
-    public List<Wishlist> getWishlists() {
-        return wishlists;
-    }
-
-    public void setWishlists(List<Wishlist> wishlists) {
-        this.wishlists = wishlists;
-    }
-
-    public List<CopiaFumetto> getCopieFumetto() {
-        return copieFumetto;
-    }
-
-    public void setCopieFumetto(List<CopiaFumetto> copieFumetto) {
-        this.copieFumetto = copieFumetto;
     }
 }

@@ -28,7 +28,7 @@ public class Utente {
 
     private LocalDate dataRegistrazione;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "abbonamento_id")
     private Abbonamento abbonamento;
 
@@ -36,19 +36,12 @@ public class Utente {
     @JoinColumn(name = "wishlist_id")
     private Wishlist wishlist;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "aste",
-            joinColumns = @JoinColumn(name = "utente_id"),
-            inverseJoinColumns = @JoinColumn(name = "asta_id"))
-    private List<Asta> aste;
-
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ordine_id")
-    private List<Ordine> ordini;
+    @OneToMany(mappedBy = "utente")
+    private List<IscrizioneAsta> iscrizioniAsta;
 
     public Utente() {}
 
-    public Utente(Long utenteId, String nome, String cognome, String email, String password, String indirizzo, LocalDate dataInizioAbbonamento, LocalDate dataFineAbbonamento, LocalDate dataRegistrazione, Abbonamento abbonamento, Wishlist wishlist, List<Asta> aste, List<Ordine> ordini) {
+    public Utente(Long utenteId, String nome, String cognome, String email, String password, String indirizzo, LocalDate dataInizioAbbonamento, LocalDate dataFineAbbonamento, LocalDate dataRegistrazione, Abbonamento abbonamento, Wishlist wishlist, List<IscrizioneAsta> iscrizioniAsta) {
         this.utenteId = utenteId;
         this.nome = nome;
         this.cognome = cognome;
@@ -60,8 +53,7 @@ public class Utente {
         this.dataRegistrazione = dataRegistrazione;
         this.abbonamento = abbonamento;
         this.wishlist = wishlist;
-        this.aste = aste;
-        this.ordini = ordini;
+        this.iscrizioniAsta = iscrizioniAsta;
     }
 
     public Long getUtenteId() {
@@ -152,19 +144,11 @@ public class Utente {
         this.wishlist = wishlist;
     }
 
-    public List<Asta> getAste() {
-        return aste;
+    public List<IscrizioneAsta> getIscrizioniAsta() {
+        return iscrizioniAsta;
     }
 
-    public void setAste(List<Asta> aste) {
-        this.aste = aste;
-    }
-
-    public List<Ordine> getOrdini() {
-        return ordini;
-    }
-
-    public void setOrdini(List<Ordine> ordini) {
-        this.ordini = ordini;
+    public void setIscrizioniAsta(List<IscrizioneAsta> iscrizionaAsta) {
+        this.iscrizioniAsta = iscrizioniAsta;
     }
 }

@@ -1,6 +1,5 @@
 package co.develhope.team_project.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -15,20 +14,19 @@ public class Wishlist {
 
     private LocalDate dataAggiunta;
 
-    @OneToOne
-    @JoinColumn(name = "utente_id")
-    private Utente utente;
-
-    @ManyToMany(mappedBy = "wishlists")
-    @JsonIgnore
+    @ManyToMany
+    @JoinTable(
+        name = "fumetto_in_wishlist",
+        joinColumns = @JoinColumn(name = "wishlist_id"),
+        inverseJoinColumns = @JoinColumn(name = "fumetto_id")
+    )
     private List<Fumetto> fumetti;
 
     public Wishlist() {}
 
-    public Wishlist(Long wishlistId, LocalDate dataAggiunta, Utente utente, List<Fumetto> fumetti) {
+    public Wishlist(Long wishlistId, LocalDate dataAggiunta, List<Fumetto> fumetti) {
         this.wishlistId = wishlistId;
         this.dataAggiunta = dataAggiunta;
-        this.utente = utente;
         this.fumetti = fumetti;
     }
 
@@ -46,14 +44,6 @@ public class Wishlist {
 
     public void setDataAggiunta(LocalDate dataAggiunta) {
         this.dataAggiunta = dataAggiunta;
-    }
-
-    public Utente getUtente() {
-        return utente;
-    }
-
-    public void setUtente(Utente utente) {
-        this.utente = utente;
     }
 
     public List<Fumetto> getFumetti() {

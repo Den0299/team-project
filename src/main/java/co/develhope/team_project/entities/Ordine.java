@@ -2,6 +2,7 @@ package co.develhope.team_project.entities;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -11,21 +12,21 @@ public class Ordine {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long ordineId;
 
-    private Double prezzoFinale;
+    private BigDecimal prezzoFinale;
 
     private LocalDate dataOrdine;
 
-    @OneToOne
-    @JoinColumn(name = "dettagliOrdine_id")
-    private DettagliOrdine dettagliOrdine;
+    @ManyToOne
+    @JoinColumn(name = "utente_id")
+    private Utente utente;
 
     public Ordine() {}
 
-    public Ordine(Long ordineId, Double prezzoFinale, LocalDate dataOrdine, DettagliOrdine dettagliOrdine) {
+    public Ordine(Long ordineId, BigDecimal prezzoFinale, LocalDate dataOrdine, Utente utente) {
         this.ordineId = ordineId;
         this.prezzoFinale = prezzoFinale;
         this.dataOrdine = dataOrdine;
-        this.dettagliOrdine = dettagliOrdine;
+        this.utente = utente;
     }
 
     public Long getOrdineId() {
@@ -36,11 +37,11 @@ public class Ordine {
         this.ordineId = ordineId;
     }
 
-    public Double getPrezzoFinale() {
+    public BigDecimal getPrezzoFinale() {
         return prezzoFinale;
     }
 
-    public void setPrezzoFinale(Double prezzoFinale) {
+    public void setPrezzoFinale(BigDecimal prezzoFinale) {
         this.prezzoFinale = prezzoFinale;
     }
 
@@ -52,11 +53,11 @@ public class Ordine {
         this.dataOrdine = dataOrdine;
     }
 
-    public DettagliOrdine getDettagliOrdine() {
-        return dettagliOrdine;
+    public Utente getUtente() {
+        return utente;
     }
 
-    public void setDettagliOrdine(DettagliOrdine dettagliOrdine) {
-        this.dettagliOrdine = dettagliOrdine;
+    public void setUtente(Utente utente) {
+        this.utente = utente;
     }
 }
