@@ -9,6 +9,8 @@ public class DettagliOrdine {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long dettagliOrdineId;
 
+    @ManyToOne
+    @JoinColumn(name = "copia_fumetto_id")
     private CopiaFumetto copiaFumetto;
 
     private Integer quantitaFumetti;

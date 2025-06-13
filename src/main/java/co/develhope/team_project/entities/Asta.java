@@ -17,6 +17,8 @@ public class Asta {
 
     private BigDecimal offertaCorrente;
 
+    @ManyToOne
+    @JoinColumn(name = "utente_migliore_offerta_id")
     private Utente utenteMiglioreOfferta;
     
     private String statoAsta;
