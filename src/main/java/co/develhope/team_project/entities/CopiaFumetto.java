@@ -1,5 +1,6 @@
 package co.develhope.team_project.entities;
 
+import co.develhope.team_project.entities.enums.StatoCopiaFumettoEnum;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -11,7 +12,8 @@ public class CopiaFumetto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long copiaFumettoId;
 
-    private String statoCopiaFumetto; // Esempio: "nuovo", "usato"
+    @Enumerated(EnumType.STRING)
+    private StatoCopiaFumettoEnum statoCopiaFumetto;
 
     private BigDecimal prezzo;
 
@@ -28,7 +30,7 @@ public class CopiaFumetto {
     public CopiaFumetto() {
     }
 
-    public CopiaFumetto(Long copiaFumettoId, String statoCopiaFumetto, BigDecimal prezzo, boolean isDisponibile, DettagliOrdine dettagliOrdine, Fumetto fumetto) {
+    public CopiaFumetto(Long copiaFumettoId, StatoCopiaFumettoEnum statoCopiaFumetto, BigDecimal prezzo, boolean isDisponibile, DettagliOrdine dettagliOrdine, Fumetto fumetto) {
         this.copiaFumettoId = copiaFumettoId;
         this.statoCopiaFumetto = statoCopiaFumetto;
         this.prezzo = prezzo;
@@ -45,11 +47,11 @@ public class CopiaFumetto {
         this.copiaFumettoId = copiaFumettoId;
     }
 
-    public String getStatoCopiaFumetto() {
+    public StatoCopiaFumettoEnum getStatoCopiaFumetto() {
         return statoCopiaFumetto;
     }
 
-    public void setStatoCopiaFumetto(String statoCopiaFumetto) {
+    public void setStatoCopiaFumetto(StatoCopiaFumettoEnum statoCopiaFumetto) {
         this.statoCopiaFumetto = statoCopiaFumetto;
     }
 

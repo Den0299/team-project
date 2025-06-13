@@ -1,5 +1,6 @@
 package co.develhope.team_project.entities;
 
+import co.develhope.team_project.entities.enums.RuoloUtenteEnum;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -28,6 +29,9 @@ public class Utente {
 
     private LocalDate dataRegistrazione;
 
+    @Enumerated(EnumType.STRING)
+    private RuoloUtenteEnum ruoloUtente;
+
     @ManyToOne
     @JoinColumn(name = "abbonamento_id")
     private Abbonamento abbonamento;
@@ -41,7 +45,7 @@ public class Utente {
 
     public Utente() {}
 
-    public Utente(Long utenteId, String nome, String cognome, String email, String password, String indirizzo, LocalDate dataInizioAbbonamento, LocalDate dataFineAbbonamento, LocalDate dataRegistrazione, Abbonamento abbonamento, Wishlist wishlist, List<IscrizioneAsta> iscrizioniAsta) {
+    public Utente(Long utenteId, String nome, String cognome, String email, String password, String indirizzo, LocalDate dataInizioAbbonamento, LocalDate dataFineAbbonamento, LocalDate dataRegistrazione, RuoloUtenteEnum ruoloUtente, Abbonamento abbonamento, Wishlist wishlist, List<IscrizioneAsta> iscrizioniAsta) {
         this.utenteId = utenteId;
         this.nome = nome;
         this.cognome = cognome;
@@ -51,6 +55,7 @@ public class Utente {
         this.dataInizioAbbonamento = dataInizioAbbonamento;
         this.dataFineAbbonamento = dataFineAbbonamento;
         this.dataRegistrazione = dataRegistrazione;
+        this.ruoloUtente = ruoloUtente;
         this.abbonamento = abbonamento;
         this.wishlist = wishlist;
         this.iscrizioniAsta = iscrizioniAsta;
@@ -148,7 +153,15 @@ public class Utente {
         return iscrizioniAsta;
     }
 
-    public void setIscrizioniAsta(List<IscrizioneAsta> iscrizionaAsta) {
+    public void setIscrizioniAsta(List<IscrizioneAsta> iscrizioniAsta) {
         this.iscrizioniAsta = iscrizioniAsta;
+    }
+
+    public RuoloUtenteEnum getRuoloUtente() {
+        return ruoloUtente;
+    }
+
+    public void setRuoloUtente(RuoloUtenteEnum ruoloUtente) {
+        this.ruoloUtente = ruoloUtente;
     }
 }

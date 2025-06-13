@@ -1,5 +1,6 @@
 package co.develhope.team_project.entities;
 
+import co.develhope.team_project.entities.enums.CategoriaFumettoEnum;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -23,9 +24,12 @@ public class Fumetto {
 
     private boolean disponibilePerAsta;
 
+    @Enumerated(EnumType.STRING)
+    private CategoriaFumettoEnum categoriaFumetto;
+
     public Fumetto() {}
 
-    public Fumetto(Long fumettoId, String titolo, String autore, String editore, String descrizione, LocalDate dataPubblicazione, boolean disponibilePerAsta) {
+    public Fumetto(Long fumettoId, String titolo, String autore, String editore, String descrizione, LocalDate dataPubblicazione, boolean disponibilePerAsta, CategoriaFumettoEnum categoriaFumetto) {
         this.fumettoId = fumettoId;
         this.titolo = titolo;
         this.autore = autore;
@@ -33,6 +37,7 @@ public class Fumetto {
         this.descrizione = descrizione;
         this.dataPubblicazione = dataPubblicazione;
         this.disponibilePerAsta = disponibilePerAsta;
+        this.categoriaFumetto = categoriaFumetto;
     }
 
     public Long getFumettoId() {
@@ -89,5 +94,13 @@ public class Fumetto {
 
     public void setDisponibilePerAsta(boolean disponibilePerAsta) {
         this.disponibilePerAsta = disponibilePerAsta;
+    }
+
+    public CategoriaFumettoEnum getCategoriaFumetto() {
+        return categoriaFumetto;
+    }
+
+    public void setCategoriaFumetto(CategoriaFumettoEnum categoriaFumetto) {
+        this.categoriaFumetto = categoriaFumetto;
     }
 }

@@ -3,7 +3,6 @@ package co.develhope.team_project.entities;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Entity
 public class Abbonamento {
