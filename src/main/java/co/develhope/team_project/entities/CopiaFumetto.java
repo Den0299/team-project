@@ -17,11 +17,7 @@ public class CopiaFumetto {
 
     private BigDecimal prezzo;
 
-    private boolean isDisponibile;
-
-    @ManyToOne
-    @JoinColumn(name = "dettagli_ordine_id")
-    private DettagliOrdine dettagliOrdine;
+    private boolean disponibile;
 
     @ManyToOne
     @JoinColumn(name = "fumetto_id")
@@ -30,12 +26,11 @@ public class CopiaFumetto {
     public CopiaFumetto() {
     }
 
-    public CopiaFumetto(Long copiaFumettoId, StatoCopiaFumettoEnum statoCopiaFumetto, BigDecimal prezzo, boolean isDisponibile, DettagliOrdine dettagliOrdine, Fumetto fumetto) {
+    public CopiaFumetto(Long copiaFumettoId, StatoCopiaFumettoEnum statoCopiaFumetto, BigDecimal prezzo, boolean disponibile, Fumetto fumetto) {
         this.copiaFumettoId = copiaFumettoId;
         this.statoCopiaFumetto = statoCopiaFumetto;
         this.prezzo = prezzo;
-        this.isDisponibile = isDisponibile;
-        this.dettagliOrdine = dettagliOrdine;
+        this.disponibile = disponibile;
         this.fumetto = fumetto;
     }
 
@@ -64,19 +59,11 @@ public class CopiaFumetto {
     }
 
     public boolean isDisponibile() {
-        return isDisponibile;
+        return disponibile;
     }
 
     public void setDisponibile(boolean disponibile) {
-        isDisponibile = disponibile;
-    }
-
-    public DettagliOrdine getDettagliOrdine() {
-        return dettagliOrdine;
-    }
-
-    public void setDettagliOrdine(DettagliOrdine dettagliOrdine) {
-        this.dettagliOrdine = dettagliOrdine;
+        this.disponibile = disponibile;
     }
 
     public Fumetto getFumetto() {
