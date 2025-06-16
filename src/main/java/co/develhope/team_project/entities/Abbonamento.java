@@ -1,5 +1,6 @@
 package co.develhope.team_project.entities;
 
+import co.develhope.team_project.entities.enums.PianoAbbonamentoEnum;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -11,13 +12,14 @@ public class Abbonamento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long abbonamentoId;
 
-    private String nomePiano;
+    @Enumerated(EnumType.STRING)
+    private PianoAbbonamentoEnum pianoAbbonamento;
+
     private String descrizione;
 
     private BigDecimal prezzoMensile;
     private BigDecimal prezzoAnnuale;
 
-    private Integer durataGiorni;
     private Integer durataMesi;
 
     private BigDecimal sconto;
@@ -25,13 +27,12 @@ public class Abbonamento {
     public Abbonamento() {
     }
 
-    public Abbonamento(Long abbonamentoId, String nomePiano, String descrizione, BigDecimal prezzoMensile, BigDecimal prezzoAnnuale, Integer durataGiorni, Integer durataMesi, BigDecimal sconto) {
+    public Abbonamento(Long abbonamentoId, PianoAbbonamentoEnum pianoAbbonamento, String descrizione, BigDecimal prezzoMensile, BigDecimal prezzoAnnuale, Integer durataMesi, BigDecimal sconto) {
         this.abbonamentoId = abbonamentoId;
-        this.nomePiano = nomePiano;
+        this.pianoAbbonamento = pianoAbbonamento;
         this.descrizione = descrizione;
         this.prezzoMensile = prezzoMensile;
         this.prezzoAnnuale = prezzoAnnuale;
-        this.durataGiorni = durataGiorni;
         this.durataMesi = durataMesi;
         this.sconto = sconto;
     }
@@ -44,12 +45,12 @@ public class Abbonamento {
         this.abbonamentoId = abbonamentoId;
     }
 
-    public String getNomePiano() {
-        return nomePiano;
+    public PianoAbbonamentoEnum getPianoAbbonamento() {
+        return pianoAbbonamento;
     }
 
-    public void setNomePiano(String nomePiano) {
-        this.nomePiano = nomePiano;
+    public void setPianoAbbonamento(PianoAbbonamentoEnum pianoAbbonamento) {
+        this.pianoAbbonamento = pianoAbbonamento;
     }
 
     public String getDescrizione() {
@@ -74,14 +75,6 @@ public class Abbonamento {
 
     public void setPrezzoAnnuale(BigDecimal prezzoAnnuale) {
         this.prezzoAnnuale = prezzoAnnuale;
-    }
-
-    public Integer getDurataGiorni() {
-        return durataGiorni;
-    }
-
-    public void setDurataGiorni(Integer durataGiorni) {
-        this.durataGiorni = durataGiorni;
     }
 
     public Integer getDurataMesi() {
