@@ -22,6 +22,7 @@ public class CopiaFumetto {
 
     private boolean disponibile;
 
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fumetto_id", nullable = false) // Una copia deve sempre essere associata a un fumetto
     @NotNull(message = "Il fumetto associato alla copia non può essere nullo")
     private Fumetto fumetto;

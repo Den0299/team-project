@@ -55,7 +55,7 @@ public class WishlistService {
 
         if (wishlistToFind.isPresent()) {
 
-            wishlistToFind.get().setDataAggiunta(wishlistDetails.getDataAggiunta());
+            wishlistToFind.get().setDataCreazione(wishlistDetails.getDataCreazione());
 
             Wishlist wishlistModificata = wishlistRepository.save(wishlistToFind.get());
             return Optional.of(wishlistModificata);
