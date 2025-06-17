@@ -1,10 +1,13 @@
 package co.develhope.team_project.entities;
 
 import co.develhope.team_project.entities.enums.StatoAstaEnum;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Asta {
@@ -18,26 +21,31 @@ public class Asta {
 
     private BigDecimal offertaCorrente;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "utente_migliore_offerta_id")
+    @JsonIgnore
     private Utente utenteMiglioreOfferta;
 
     @Enumerated(EnumType.STRING)
     private StatoAstaEnum statoAsta;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "copia_fumetto_id")
+    @JsonIgnore
     private CopiaFumetto copiaFumetto;
+
+    @OneToMany(mappedBy = "asta", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<IscrizioneAsta> iscrizioniAsta = new ArrayList<>();
+
 
     public Asta() {
     }
 
-    public Asta(Long astaId, LocalDate dataInizio, LocalDate dataFine, BigDecimal offertaCorrente, Utente utenteMiglioreOfferta, StatoAstaEnum statoAsta, CopiaFumetto copiaFumetto) {
+    public Asta(Long astaId, LocalDate dataInizio, LocalDate dataFine, BigDecimal offertaCorrente, StatoAstaEnum statoAsta, CopiaFumetto copiaFumetto) {
         this.astaId = astaId;
         this.dataInizio = dataInizio;
         this.dataFine = dataFine;
         this.offertaCorrente = offertaCorrente;
-        this.utenteMiglioreOfferta = utenteMiglioreOfferta;
         this.statoAsta = statoAsta;
         this.copiaFumetto = copiaFumetto;
     }
@@ -96,6 +104,14 @@ public class Asta {
 
     public void setCopiaFumetto(CopiaFumetto copiaFumetto) {
         this.copiaFumetto = copiaFumetto;
+    }
+
+    public List<IscrizioneAsta> getIscrizioniAsta() {
+        return iscrizioniAsta;
+    }
+
+    public void setIscrizioniAsta(List<IscrizioneAsta> iscrizioniAsta) {
+        this.iscrizioniAsta = iscrizioniAsta;
     }
 }
 

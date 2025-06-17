@@ -1,6 +1,7 @@
 package co.develhope.team_project.entities;
 
 import co.develhope.team_project.entities.enums.RuoloUtenteEnum;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -62,6 +63,7 @@ public class Utente {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "abbonamento_id")
+    @JsonIgnore
     private Abbonamento abbonamento;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

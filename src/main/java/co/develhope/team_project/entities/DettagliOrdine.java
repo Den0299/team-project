@@ -1,5 +1,6 @@
 package co.develhope.team_project.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -9,14 +10,16 @@ public class DettagliOrdine {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long dettagliOrdineId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "copia_fumetto_id")
+    @JsonIgnore
     private CopiaFumetto copiaFumetto;
 
     private Integer quantitaFumetti;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ordine_id")
+    @JsonIgnore
     private Ordine ordine;
 
     public DettagliOrdine() {

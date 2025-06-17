@@ -2,8 +2,11 @@ package co.develhope.team_project.entities;
 
 import co.develhope.team_project.entities.enums.StatoCopiaFumettoEnum;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class CopiaFumetto {
@@ -19,9 +22,12 @@ public class CopiaFumetto {
 
     private boolean disponibile;
 
-    @ManyToOne
-    @JoinColumn(name = "fumetto_id")
+    @JoinColumn(name = "fumetto_id", nullable = false) // Una copia deve sempre essere associata a un fumetto
+    @NotNull(message = "Il fumetto associato alla copia non può essere nullo")
     private Fumetto fumetto;
+
+    @OneToMany(mappedBy = "copiaFumetto", fetch = FetchType.LAZY)
+    private List<DettagliOrdine> dettagliOrdini = new ArrayList<>();
 
     public CopiaFumetto() {
     }
@@ -72,6 +78,14 @@ public class CopiaFumetto {
 
     public void setFumetto(Fumetto fumetto) {
         this.fumetto = fumetto;
+    }
+
+    public List<DettagliOrdine> getDettagliOrdini() {
+        return dettagliOrdini;
+    }
+
+    public void setDettagliOrdini(List<DettagliOrdine> dettagliOrdini) {
+        this.dettagliOrdini = dettagliOrdini;
     }
 }
 

@@ -122,7 +122,7 @@ public class Fumetto {
         this.dataPubblicazione = dataPubblicazione;
     }
 
-    public boolean getDisponibilePerAsta() {
+    public boolean isDisponibilePerAsta() {
         return disponibilePerAsta;
     }
 
@@ -144,6 +144,14 @@ public class Fumetto {
 
     public void setWishlists(List<Wishlist> wishlists) {
         this.wishlists = wishlists;
+    }
+
+    public List<CopiaFumetto> getCopieFumetto() {
+        return copieFumetto;
+    }
+
+    public void setCopieFumetto(List<CopiaFumetto> copieFumetto) {
+        this.copieFumetto = copieFumetto;
     }
 
     // --- Metodi Helper per la relazione ManyToMany con Wishlist: ---

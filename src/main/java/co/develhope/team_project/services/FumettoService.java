@@ -60,7 +60,9 @@ public class FumettoService {
             fumettoOptional.get().setDescrizione(fumettoDetails.getDescrizione());
             fumettoOptional.get().setEditore(fumettoDetails.getEditore());
             fumettoOptional.get().setDataPubblicazione(fumettoDetails.getDataPubblicazione());
-            fumettoOptional.get().setDisponibilePerAsta(fumettoDetails.getDisponibilePerAsta());
+            fumettoOptional.get().setDisponibilePerAsta(fumettoDetails.isDisponibilePerAsta());
+            fumettoOptional.get().setCategoriaFumetto(fumettoDetails.getCategoriaFumetto());
+
 
             Fumetto utenteModificato = fumettoRepository.save(fumettoOptional.get());
             return Optional.of(utenteModificato);

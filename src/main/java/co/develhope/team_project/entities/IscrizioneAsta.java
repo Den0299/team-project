@@ -1,5 +1,6 @@
 package co.develhope.team_project.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -13,12 +14,14 @@ public class IscrizioneAsta {
 
     private LocalDate dataIscrizione;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "asta_id")
+    @JsonIgnore
     private Asta asta;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "utente_id")
+    @JsonIgnore
     private Utente utente;
 
     public IscrizioneAsta() {

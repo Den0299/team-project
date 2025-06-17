@@ -1,6 +1,7 @@
 package co.develhope.team_project.entities;
 
 import co.develhope.team_project.entities.enums.StatoOrdineEnum;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
@@ -40,10 +41,11 @@ public class Ordine {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "utente_id", nullable = false)
+    @JsonIgnore
     private Utente utente;
 
     @OneToMany(mappedBy = "ordine", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<DettagliOrdine> dettagliOrdine = new ArrayList<>();
+    private List<DettagliOrdine> dettagliOrdini = new ArrayList<>();
 
     // --- Costruttori: ---
 
@@ -96,6 +98,14 @@ public class Ordine {
 
     public void setStatoOrdine(StatoOrdineEnum statoOrdine) {
         this.statoOrdine = statoOrdine;
+    }
+
+    public List<DettagliOrdine> getDettagliOrdini() {
+        return dettagliOrdini;
+    }
+
+    public void setDettagliOrdini(List<DettagliOrdine> dettagliOrdini) {
+        this.dettagliOrdini = dettagliOrdini;
     }
 
     // --- equals(), hashCode(), toString() ---

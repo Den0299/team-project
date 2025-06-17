@@ -1,8 +1,10 @@
 package co.develhope.team_project.entities;
 
 import co.develhope.team_project.entities.enums.PianoAbbonamentoEnum;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -15,8 +17,9 @@ public class Abbonamento {
     @Enumerated(EnumType.STRING)
     private PianoAbbonamentoEnum pianoAbbonamento;
 
-    @OneToMany(mappedBy = "abbonamento")
-    private List<Utente> utenti;
+    @OneToMany(mappedBy = "abbonamento", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore // Previene loop infiniti nella serializzazione JSON
+    private List<Utente> utenti = new ArrayList<>();
 
 
     public Abbonamento() {
@@ -41,6 +44,14 @@ public class Abbonamento {
 
     public void setPianoAbbonamento(PianoAbbonamentoEnum pianoAbbonamento) {
         this.pianoAbbonamento = pianoAbbonamento;
+    }
+
+    public List<Utente> getUtenti() {
+        return utenti;
+    }
+
+    public void setUtenti(List<Utente> utenti) {
+        this.utenti = utenti;
     }
 }
 
