@@ -88,7 +88,7 @@ public class Fumetto {
         this.dataPubblicazione = dataPubblicazione;
     }
 
-    public boolean isDisponibilePerAsta() {
+    public boolean getDisponibilePerAsta() {
         return disponibilePerAsta;
     }
 
