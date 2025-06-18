@@ -43,7 +43,6 @@ public class Fumetto {
     @PastOrPresent(message = "La data di pubblicazione non può essere nel futuro")
     private LocalDate dataPubblicazione;
 
-    @NotNull(message = "La disponibilità per l'asta non può essere nulla")
     private boolean disponibilePerAsta;
 
     @NotNull(message = "La categoria del fumetto non può essere nulla")

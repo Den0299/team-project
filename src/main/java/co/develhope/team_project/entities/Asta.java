@@ -3,6 +3,10 @@ package co.develhope.team_project.entities;
 import co.develhope.team_project.entities.enums.StatoAstaEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -17,9 +21,19 @@ public class Asta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long astaId;
 
+    @NotNull(message = "La data di inizio dell'asta non può essere nulla")
+    @FutureOrPresent(message = "La data di inizio dell'asta non può essere nel passato")
+    @Column(nullable = false)
     private LocalDate dataInizio;
+
+    @NotNull(message = "La data di fine dell'asta non può essere nulla")
+    @Future(message = "La data di fine dell'asta deve essere nel futuro")
+    @Column(nullable = false)
     private LocalDate dataFine;
 
+    @NotNull(message = "L'offerta corrente non può essere nulla")
+    @DecimalMin(value = "0.0", inclusive = false, message = "L'offerta corrente deve essere maggiore di zero")
+    @Column(nullable = false, precision = 10, scale = 2) // Esempio: 10 cifre totali, 2 dopo la virgola
     private BigDecimal offertaCorrente;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -27,6 +41,7 @@ public class Asta {
     @JsonIgnore
     private Utente utenteMiglioreOfferta;
 
+    @NotNull(message = "Lo stato dell'asta non può essere nullo")
     @Enumerated(EnumType.STRING)
     private StatoAstaEnum statoAsta;
 

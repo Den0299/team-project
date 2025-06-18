@@ -2,6 +2,7 @@ package co.develhope.team_project.entities;
 
 import co.develhope.team_project.entities.enums.StatoCopiaFumettoEnum;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
@@ -19,6 +20,9 @@ public class CopiaFumetto {
     @Enumerated(EnumType.STRING)
     private StatoCopiaFumettoEnum statoCopiaFumetto;
 
+    @NotNull(message = "Il prezzo non può essere nullo")
+    @DecimalMin(value = "0.0", inclusive = true, message = "Il prezzo deve essere non negativo")
+    @Column(nullable = false, precision = 10, scale = 2) // Esempio: 10 cifre totali, 2 dopo la virgola
     private BigDecimal prezzo;
 
     private boolean disponibile;

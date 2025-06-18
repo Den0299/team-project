@@ -2,6 +2,7 @@ package co.develhope.team_project.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 
@@ -16,12 +17,13 @@ public class IscrizioneAsta {
     private LocalDate dataIscrizione;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "asta_id")
-    @JsonIgnore
+    @JoinColumn(name = "asta_id", nullable = false) // Un'iscrizione deve sempre essere associata a un'asta
+    @NotNull(message = "L'asta associata all'iscrizione non può essere nulla")
     private Asta asta;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "utente_id")
+    @JoinColumn(name = "utente_id", nullable = false) // Un'iscrizione deve sempre essere fatta da un utente
+    @NotNull(message = "L'utente associato all'iscrizione non può essere nullo")
     @JsonIgnore
     private Utente utente;
 
