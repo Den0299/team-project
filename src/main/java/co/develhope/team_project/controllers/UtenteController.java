@@ -80,6 +80,7 @@ public class UtenteController {
             return ResponseEntity.ok(updatedUtente);
         } catch (RuntimeException e) {
             System.err.println("Errore durante l'assegnazione dell'abbonamento: " + e.getMessage());
+            e.printStackTrace();
             if (e.getMessage().contains("non trovato")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
             }

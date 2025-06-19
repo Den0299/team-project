@@ -38,6 +38,8 @@ public class Utente {
     @Size(max = 255, message = "L'email non può superare i 255 caratteri")
     private String email;
 
+    @JsonIgnore
+    @Column(nullable = false)
     @NotBlank(message = "La password non può essere vuota")
     @Size(min = 8, message = "La password deve avere almeno 8 caratteri")
     private String password;
@@ -45,10 +47,10 @@ public class Utente {
     @Size(max = 255, message = "L'indirizzo non può superare i 255 caratteri")
     private String indirizzo;
 
-    @PastOrPresent(message = "La data di inizio abbonamento non può essere nel futuro")
+    @Column
     private LocalDate dataInizioAbbonamento;
 
-    @PastOrPresent(message = "La data di fine abbonamento non può essere nel futuro")
+    @Column
     private LocalDate dataFineAbbonamento;
 
     @NotNull(message = "La data di registrazione non può essere nulla")
