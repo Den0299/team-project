@@ -30,8 +30,7 @@ public class IscrizioneAsta {
     public IscrizioneAsta() {
     }
 
-    public IscrizioneAsta(Long id, LocalDate dataIscrizione, Asta asta, Utente utente) {
-        this.id = id;
+    public IscrizioneAsta(LocalDate dataIscrizione, Asta asta, Utente utente) {
         this.dataIscrizione = dataIscrizione;
         this.asta = asta;
         this.utente = utente;

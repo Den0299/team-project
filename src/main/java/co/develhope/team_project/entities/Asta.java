@@ -57,8 +57,7 @@ public class Asta {
     public Asta() {
     }
 
-    public Asta(Long astaId, LocalDate dataInizio, LocalDate dataFine, BigDecimal offertaCorrente, StatoAstaEnum statoAsta, CopiaFumetto copiaFumetto) {
-        this.astaId = astaId;
+    public Asta(LocalDate dataInizio, LocalDate dataFine, BigDecimal offertaCorrente, StatoAstaEnum statoAsta, CopiaFumetto copiaFumetto) {
         this.dataInizio = dataInizio;
         this.dataFine = dataFine;
         this.offertaCorrente = offertaCorrente;

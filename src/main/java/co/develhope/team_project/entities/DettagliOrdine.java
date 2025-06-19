@@ -33,8 +33,7 @@ public class DettagliOrdine {
     public DettagliOrdine() {
     }
 
-    public DettagliOrdine(Long dettagliOrdineId, CopiaFumetto copiaFumetto, Integer quantitaFumetti, Ordine ordine) {
-        this.dettagliOrdineId = dettagliOrdineId;
+    public DettagliOrdine(CopiaFumetto copiaFumetto, Integer quantitaFumetti, Ordine ordine) {
         this.copiaFumetto = copiaFumetto;
         this.quantitaFumetti = quantitaFumetti;
         this.ordine = ordine;

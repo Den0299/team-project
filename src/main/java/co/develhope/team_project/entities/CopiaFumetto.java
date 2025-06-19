@@ -38,8 +38,7 @@ public class CopiaFumetto {
     public CopiaFumetto() {
     }
 
-    public CopiaFumetto(Long copiaFumettoId, StatoCopiaFumettoEnum statoCopiaFumetto, BigDecimal prezzo, boolean disponibile, Fumetto fumetto) {
-        this.copiaFumettoId = copiaFumettoId;
+    public CopiaFumetto(StatoCopiaFumettoEnum statoCopiaFumetto, BigDecimal prezzo, boolean disponibile, Fumetto fumetto) {
         this.statoCopiaFumetto = statoCopiaFumetto;
         this.prezzo = prezzo;
         this.disponibile = disponibile;

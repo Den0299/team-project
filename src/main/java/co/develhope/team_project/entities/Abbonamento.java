@@ -26,8 +26,7 @@ public class Abbonamento {
     public Abbonamento() {
     }
 
-    public Abbonamento(Long abbonamentoId, PianoAbbonamentoEnum pianoAbbonamento) {
-        this.abbonamentoId = abbonamentoId;
+    public Abbonamento(PianoAbbonamentoEnum pianoAbbonamento) {
         this.pianoAbbonamento = pianoAbbonamento;
     }
 
