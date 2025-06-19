@@ -4,11 +4,12 @@ import co.develhope.team_project.entities.Abbonamento;
 import co.develhope.team_project.entities.Utente;
 import co.develhope.team_project.repositories.AbbonamentoRepository;
 import co.develhope.team_project.repositories.UtenteRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -105,5 +106,23 @@ public class UtenteService {
 
         // 5. Salva l'utente aggiornato
         return utenteRepository.save(utente);
+    }
+
+    // ottieni una lista di utenti con un abbonamento attivo:
+    @Transactional(readOnly = true)
+    public List<Utente> getUtentiConAbbonamentoAttivo() {
+        List<Utente> allUtenti = utenteRepository.findAll();
+        LocalDate today = LocalDate.now();
+
+        List<Utente> utentiAttivi = new ArrayList<>();
+
+        for (Utente utente : allUtenti) {
+            if (utente.getAbbonamento() != null && // L'utente deve avere un abbonamento assegnato
+                    utente.getDataFineAbbonamento() != null && // La data di fine abbonamento deve essere impostata
+                    !utente.getDataFineAbbonamento().isBefore(today)) { // La data di fine abbonamento non è passata
+                utentiAttivi.add(utente);
+            }
+        }
+        return utentiAttivi;
     }
 }

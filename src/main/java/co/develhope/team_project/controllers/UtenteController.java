@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -85,6 +84,18 @@ public class UtenteController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
             }
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
+
+    // ottieni una lista di utenti con un abbonamento attivo:
+    @GetMapping("/abbonati-attivi")
+    public ResponseEntity<List<Utente>> getUtentiConAbbonamentoAttivo() {
+        try {
+            List<Utente> utenti = utenteService.getUtentiConAbbonamentoAttivo();
+            return ResponseEntity.ok(utenti);
+        } catch (Exception e) {
+            System.err.println("Errore durante il recupero degli utenti con abbonamento attivo: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }
