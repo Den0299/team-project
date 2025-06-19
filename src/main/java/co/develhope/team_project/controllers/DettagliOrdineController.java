@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/dettagliOrdini")
+@RequestMapping("/api/dettagliOrdini")
 public class DettagliOrdineController {
 
     @Autowired
