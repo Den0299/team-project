@@ -5,6 +5,7 @@ import co.develhope.team_project.repositories.UtenteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +21,7 @@ public class UtenteService {
         if (existingUser.isPresent()) {
             throw new RuntimeException("Questa email è già stata utilizzata da un altro utente");
         }
+        utente.setDataRegistrazione(LocalDate.now());
         return utenteRepository.save(utente);
     }
 
