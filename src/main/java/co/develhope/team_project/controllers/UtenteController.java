@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -68,5 +69,22 @@ public class UtenteController {
             return ResponseEntity.ok(utenteToUpdate.get());
         }
         return ResponseEntity.notFound().build();
+    }
+
+    // associa un abbonamento ad un utente:
+    @PutMapping("/assegna-abbonamento/{utenteId}")
+    public ResponseEntity<Utente> assegnaAbbonamento(
+            @PathVariable Long utenteId,
+            @RequestBody Long abbonamentoId) {
+        try {
+            Utente updatedUtente = utenteService.associaAbbonamento(utenteId, abbonamentoId);
+            return ResponseEntity.ok(updatedUtente);
+        } catch (RuntimeException e) {
+            System.err.println("Errore durante l'assegnazione dell'abbonamento: " + e.getMessage());
+            if (e.getMessage().contains("non trovato")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
     }
 }

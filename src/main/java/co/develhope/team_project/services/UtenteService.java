@@ -1,7 +1,10 @@
 package co.develhope.team_project.services;
 
+import co.develhope.team_project.entities.Abbonamento;
 import co.develhope.team_project.entities.Utente;
+import co.develhope.team_project.repositories.AbbonamentoRepository;
 import co.develhope.team_project.repositories.UtenteRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +17,9 @@ public class UtenteService {
 
     @Autowired
     private UtenteRepository utenteRepository;
+
+    @Autowired
+    private AbbonamentoRepository abbonamentoRepository;
 
     // crea un nuovo utente:
     public Utente createUtente(Utente utente) {
@@ -73,5 +79,31 @@ public class UtenteService {
             return Optional.of(utenteModificato);
         }
         return Optional.empty();
+    }
+
+    // associa un abbonamento ad un utente:
+    @Transactional // Garantisce che l'operazione sia atomica
+    public Utente associaAbbonamento(Long utenteId, Long abbonamentoId) {
+        // 1. Trova l'utente
+        Utente utente = utenteRepository.findById(utenteId)
+                .orElseThrow(() -> new RuntimeException("Utente non trovato con ID: " + utenteId));
+
+        // 2. Trova l'istanza di Abbonamento (es. Abbonamento con PianoAbbonamentoEnum.MENSILE)
+        Abbonamento abbonamento = abbonamentoRepository.findById(abbonamentoId)
+                .orElseThrow(() -> new RuntimeException("Abbonamento non trovato con ID: " + abbonamentoId));
+
+        // 3. Associa l'abbonamento all'utente
+        utente.setAbbonamento(abbonamento);
+
+        // 4. Imposta le date di inizio e fine abbonamento
+        LocalDate now = LocalDate.now();
+        utente.setDataInizioAbbonamento(now);
+
+        // Accedi alla durata in giorni tramite l'enum PianoAbbonamentoEnum
+        Integer durataGiorni = abbonamento.getPianoAbbonamento().getDurataGiorni();
+        utente.setDataFineAbbonamento(now.plusDays(durataGiorni));
+
+        // 5. Salva l'utente aggiornato
+        return utenteRepository.save(utente);
     }
 }

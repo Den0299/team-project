@@ -19,7 +19,7 @@ public class Abbonamento {
     private PianoAbbonamentoEnum pianoAbbonamento;
 
     @OneToMany(mappedBy = "abbonamento", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore // Previene loop infiniti nella serializzazione JSON
+    @JsonIgnore
     private List<Utente> utenti = new ArrayList<>();
 
 
