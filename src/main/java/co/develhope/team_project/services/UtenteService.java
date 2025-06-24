@@ -125,4 +125,11 @@ public class UtenteService {
         }
         return utentiAttivi;
     }
+
+    @Transactional
+    public List<Utente> getUtentiAbbonati() {
+        List<Utente> listaUtentiAbbonati = utenteRepository.findUtentiAbbonatiWithWishlistAndAbbonamento();
+
+        return listaUtentiAbbonati;
+    }
 }

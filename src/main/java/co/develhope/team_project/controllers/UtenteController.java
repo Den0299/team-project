@@ -90,8 +90,8 @@ public class UtenteController {
         }
     }
 
-    // ottieni una lista di utenti con un abbonamento attivo:
-    @GetMapping("/abbonati-attivi")
+    // ottieni una lista di utenti con un abbonamento attivo (deprecated):
+    @GetMapping("/abbonati")
     public ResponseEntity<List<Utente>> getUtentiConAbbonamentoAttivo() {
         try {
             List<Utente> utenti = utenteService.getUtentiConAbbonamentoAttivo();
@@ -100,5 +100,15 @@ public class UtenteController {
             System.err.println("Errore durante il recupero degli utenti con abbonamento attivo: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    // ottieni una lista di utenti con un abbonamento attivo:
+    @GetMapping(path = "/abbonati-attivi", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Utente>> getUtentiAbbonati() {
+        List<Utente> utentiAbbonati = utenteService.getUtentiAbbonati();
+        if (utentiAbbonati.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(utentiAbbonati, HttpStatus.OK);
     }
 }
