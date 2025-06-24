@@ -38,7 +38,6 @@ public class Utente {
     @Size(max = 255, message = "L'email non può superare i 255 caratteri")
     private String email;
 
-    @JsonIgnore
     @Column(nullable = false)
     @NotBlank(message = "La password non può essere vuota")
     @Size(min = 8, message = "La password deve avere almeno 8 caratteri")
