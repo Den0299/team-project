@@ -27,4 +27,8 @@ public interface UtenteRepository extends JpaRepository<Utente, Long> {
     // Metodo per ritornare una lista di utenti con un abbonamento attivo:
     @Query("SELECT u FROM Utente u LEFT JOIN FETCH u.wishlist LEFT JOIN FETCH u.abbonamento WHERE u.abbonamento IS NOT NULL")
     List<Utente> findUtentiAbbonatiWithWishlistAndAbbonamento();
+
+    // --- NUOVO METODO: Recupera Utente con Wishlist e i suoi Fumetti ---
+    @Query("SELECT u FROM Utente u JOIN FETCH u.wishlist w LEFT JOIN FETCH w.fumetti f WHERE u.utenteId = :utenteId")
+    Optional<Utente> findByIdWithWishlistAndFumetti(Long utenteId);
 }

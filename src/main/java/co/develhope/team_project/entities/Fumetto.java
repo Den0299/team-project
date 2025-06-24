@@ -1,6 +1,7 @@
 package co.develhope.team_project.entities;
 
 import co.develhope.team_project.entities.enums.CategoriaFumettoEnum;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -50,6 +51,7 @@ public class Fumetto {
     // --- Chiavi esterne: ---
 
     @ManyToMany(mappedBy = "fumetti", fetch = FetchType.LAZY)
+    @JsonIgnore
     private Set<Wishlist> wishlists = new HashSet<>();
 
     @OneToMany(mappedBy = "fumetto", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

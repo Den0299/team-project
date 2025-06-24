@@ -145,4 +145,22 @@ public class UtenteController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    /**
+     * Recupera la wishlist di un utente specifico, inclusa la lista dei fumetti.
+     * GET /api/utenti/{utenteId}/wishlist
+     *
+     * @param utenteId L'ID dell'utente.
+     * @return La wishlist dell'utente con i suoi fumetti, o 404 NOT FOUND se l'utente o la wishlist non esistono.
+     */
+    @GetMapping(path = "/find-wishlist-by-utenteId/{utenteId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Wishlist> getWishlistConFumetti(@PathVariable Long utenteId) {
+        Optional<Wishlist> wishlistOpt = utenteService.getWishlistConFumetti(utenteId);
+
+        if (wishlistOpt.isPresent()) {
+            return new ResponseEntity<>(wishlistOpt.get(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 }

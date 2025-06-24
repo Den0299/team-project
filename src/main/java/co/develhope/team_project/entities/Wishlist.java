@@ -31,7 +31,6 @@ public class Wishlist {
             joinColumns = @JoinColumn(name = "wishlist_id"), // Colonna che punta a Wishlist
             inverseJoinColumns = @JoinColumn(name = "fumetto_id") // Colonna che punta a Fumetto
     )
-    @JsonIgnore
     private Set<Fumetto> fumetti = new HashSet<>();
 
     @OneToOne(mappedBy = "wishlist", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

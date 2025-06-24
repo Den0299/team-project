@@ -204,4 +204,20 @@ public class UtenteService {
         // Ritorna la wishlist aggiornata
         return Optional.of(wishlist);
     }
+
+    /**
+     * Recupera la wishlist di un utente specifico, inclusa la lista dei fumetti.
+     *
+     * @param utenteId L'ID dell'utente.
+     * @return Un Optional contenente la Wishlist con i fumetti se trovata, altrimenti un Optional vuoto.
+     */
+    @Transactional // @Transactional è importante per gestire le relazioni lazy all'interno della sessione Hibernate.
+    public Optional<Wishlist> getWishlistConFumetti(Long utenteId) {
+        Optional<Utente> utenteOpt = utenteRepository.findByIdWithWishlistAndFumetti(utenteId);
+
+        if (utenteOpt.isPresent()) {
+            return Optional.ofNullable(utenteOpt.get().getWishlist());
+        }
+        return Optional.empty();
+    }
 }
