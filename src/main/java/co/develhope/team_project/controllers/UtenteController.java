@@ -163,4 +163,29 @@ public class UtenteController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    /**
+     * Rimuove un fumetto specifico dalla wishlist di un utente.
+     * DELETE /api/utenti/{utenteId}/wishlist/{fumettoId}
+     *
+     * @param utenteId L'ID dell'utente.
+     * @param fumettoId L'ID del fumetto da rimuovere.
+     * @return 200 OK con la wishlist aggiornata, 404 NOT FOUND se utente/fumetto/wishlist non esistono,
+     * o 204 NO CONTENT se il fumetto non era nella wishlist (potresti decidere una logica diversa qui).
+     */
+    @DeleteMapping(path = "/remove-fumetto-from-wishlist/{utenteId}/{fumettoId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Wishlist> removeFumettoFromWishlist(
+            @PathVariable Long utenteId,
+            @PathVariable Long fumettoId) {
+
+        Optional<Wishlist> updatedWishlistOpt = utenteService.removeFumettoFromWishlist(utenteId, fumettoId);
+
+        if (updatedWishlistOpt.isPresent()) {
+            return new ResponseEntity<>(updatedWishlistOpt.get(), HttpStatus.OK);
+        } else {
+            // Potresti voler distinguere tra utente/fumetto/wishlist non trovati
+            // e fumetto non presente nella wishlist. Per ora, 404 generico.
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 }

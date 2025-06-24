@@ -220,4 +220,33 @@ public class UtenteService {
         }
         return Optional.empty();
     }
+
+    /**
+     * Rimuove un fumetto dalla wishlist di un utente specifico.
+     *
+     * @param utenteId L'ID dell'utente proprietario della wishlist.
+     * @param fumettoId L'ID del fumetto da rimuovere.
+     * @return Un Optional contenente la Wishlist aggiornata se l'operazione ha successo, altrimenti un Optional vuoto.
+     */
+    @Transactional // @Transactional è cruciale perché modifichiamo una relazione gestita.
+    public Optional<Wishlist> removeFumettoFromWishlist(Long utenteId, Long fumettoId) {
+        // Carica l'utente e la sua wishlist (e i fumetti) in eager per evitare LazyInitializationException
+        Optional<Utente> utenteOpt = utenteRepository.findByIdWithWishlistAndFumetti(utenteId);
+        Optional<Fumetto> fumettoOpt = fumettoRepository.findById(fumettoId);
+
+        if (utenteOpt.isPresent() && fumettoOpt.isPresent()) {
+            Utente utente = utenteOpt.get();
+            Fumetto fumetto = fumettoOpt.get();
+            Wishlist wishlist = utente.getWishlist();
+
+            if (wishlist != null) {
+                // Usa il metodo helper removeFumetto per gestire la rimozione bidirezionale
+                wishlist.removeFumetto(fumetto);
+                // Salva l'utente per persistere i cambiamenti nella wishlist associata
+                utenteRepository.save(utente);
+                return Optional.of(wishlist); // Restituisce la wishlist aggiornata
+            }
+        }
+        return Optional.empty(); // Utente, fumetto o wishlist non trovati
+    }
 }
