@@ -1,13 +1,12 @@
 package co.develhope.team_project.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 @Table(name = "wishlists")
@@ -31,14 +30,17 @@ public class Wishlist {
             joinColumns = @JoinColumn(name = "wishlist_id"), // Colonna che punta a Wishlist
             inverseJoinColumns = @JoinColumn(name = "fumetto_id") // Colonna che punta a Fumetto
     )
-    private List<Fumetto> fumetti = new ArrayList<>();
+    private Set<Fumetto> fumetti = new HashSet<>();
 
     @OneToOne(mappedBy = "wishlist", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
     private Utente utente;
 
     // --- Costruttori: ---
 
-    public Wishlist() {}
+    public Wishlist() {
+        this.dataCreazione = LocalDate.now();
+    }
 
     public Wishlist(LocalDate dataCreazione) {
         this.dataCreazione = dataCreazione;
@@ -62,11 +64,11 @@ public class Wishlist {
         this.dataCreazione = dataCreazione;
     }
 
-    public List<Fumetto> getFumetti() {
+    public Set<Fumetto> getFumetti() {
         return fumetti;
     }
 
-    public void setFumetti(List<Fumetto> fumetti) {
+    public void setFumetti(Set<Fumetto> fumetti) {
         this.fumetti = fumetti;
     }
 

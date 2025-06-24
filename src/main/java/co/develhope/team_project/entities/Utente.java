@@ -2,6 +2,7 @@ package co.develhope.team_project.entities;
 
 import co.develhope.team_project.entities.enums.RuoloUtenteEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -69,6 +70,7 @@ public class Utente {
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "wishlist_id")
+    @JsonManagedReference
     private Wishlist wishlist;
 
     @OneToMany(mappedBy = "utente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -82,16 +84,22 @@ public class Utente {
 
     // --- Costruttori ---:
 
-    public Utente() {}
+    public Utente() {
+        this.dataRegistrazione = LocalDate.now(); // Data di registrazione di default
+        this.ruoloUtente = RuoloUtenteEnum.CLIENTE;      // Ruolo di default se non specificato
+        this.wishlist = new Wishlist();           // Inizializza una nuova Wishlist qui!
+        // Se vuoi impostare l'utente anche nella wishlist (relazione bidirezionale),
+        this.wishlist.setUtente(this);
+    }
 
     public Utente(String nome, String cognome, String email, String password, String indirizzo, RuoloUtenteEnum ruoloUtente) {
+        this();
         this.nome = nome;
         this.cognome = cognome;
         this.email = email;
         this.password = password;
         this.indirizzo = indirizzo;
         this.ruoloUtente = ruoloUtente;
-        this.dataRegistrazione = LocalDate.now();
     }
 
     // --- Getters e setters ---:

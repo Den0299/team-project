@@ -8,9 +8,7 @@ import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 @Table(name = "fumetti")
@@ -51,8 +49,8 @@ public class Fumetto {
 
     // --- Chiavi esterne: ---
 
-    @ManyToMany(mappedBy = "fumetti", fetch = FetchType.LAZY) // forse opzionale
-    private List<Wishlist> wishlists = new ArrayList<>();
+    @ManyToMany(mappedBy = "fumetti", fetch = FetchType.LAZY)
+    private Set<Wishlist> wishlists = new HashSet<>();
 
     @OneToMany(mappedBy = "fumetto", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<CopiaFumetto> copieFumetto = new ArrayList<>();
@@ -137,11 +135,11 @@ public class Fumetto {
         this.categoriaFumetto = categoriaFumetto;
     }
 
-    public List<Wishlist> getWishlists() {
+    public Set<Wishlist> getWishlists() {
         return wishlists;
     }
 
-    public void setWishlists(List<Wishlist> wishlists) {
+    public void setWishlists(Set<Wishlist> wishlists) {
         this.wishlists = wishlists;
     }
 
