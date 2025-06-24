@@ -1,6 +1,7 @@
 package co.develhope.team_project.controllers;
 
 import co.develhope.team_project.entities.Utente;
+import co.develhope.team_project.entities.Wishlist;
 import co.develhope.team_project.services.UtenteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -106,9 +107,42 @@ public class UtenteController {
     @GetMapping(path = "/abbonati-attivi", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Utente>> getUtentiAbbonati() {
         List<Utente> utentiAbbonati = utenteService.getUtentiAbbonati();
+
+        for (Utente utente : utentiAbbonati) {
+            if (utente.getWishlist() != null) {
+                System.out.println("Utente ID: " + utente.getUtenteId() + ", Wishlist è inizializzata: " + org.hibernate.Hibernate.isInitialized(utente.getWishlist()));
+            } else {
+                System.out.println("Utente ID: " + utente.getUtenteId() + ", Wishlist è null.");
+            }
+        }
+
         if (utentiAbbonati.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(utentiAbbonati, HttpStatus.OK);
+    }
+
+    /**
+     * Endpoint per aggiungere un fumetto alla wishlist di un utente.
+     * PUT /api/utenti/{utenteId}/add-fumetto-to-wishlist/{fumettoId}
+     *
+     * @param utenteId L'ID dell'utente.
+     * @param fumettoId L'ID del fumetto da aggiungere.
+     * @return La wishlist aggiornata o un errore se utente/fumetto non trovati.
+     */
+    @PutMapping(path = "/add-fumetto-to-wishlist/{utenteId}/{fumettoId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Wishlist> addFumettoToWishlist(
+            @PathVariable Long utenteId,
+            @PathVariable Long fumettoId) {
+
+        Optional<Wishlist> updatedWishlistOpt = utenteService.addFumettoToWishlist(utenteId, fumettoId);
+
+        if (updatedWishlistOpt.isPresent()) {
+            return new ResponseEntity<>(updatedWishlistOpt.get(), HttpStatus.OK);
+        } else {
+            // Potresti voler distinguere tra utente non trovato e fumetto non trovato
+            // Per semplicità, qui restituiamo NOT_FOUND generico
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }

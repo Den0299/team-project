@@ -85,13 +85,21 @@ public class Wishlist {
     // --- Metodi Helper per la relazione ManyToMany con Fumetto: ---
 
     public void addFumetto(Fumetto fumetto) {
-        if (!this.fumetti.contains(fumetto)) {
+        if (fumetto != null && !this.fumetti.contains(fumetto)) {
             this.fumetti.add(fumetto);
+            // Questa chiamata qui è importante per mantenere la coerenza in memoria
+            // ma non deve causare un ciclo infinito. Il check in Fumetto.addWishlist
+            // dovrebbe prevenire l'aggiunta ridondante.
+            fumetto.getWishlists().add(this);
         }
     }
 
     public void removeFumetto(Fumetto fumetto) {
-        this.fumetti.remove(fumetto);
+        if (fumetto != null && this.fumetti.contains(fumetto)) {
+            this.fumetti.remove(fumetto);
+            // Questa chiamata qui è importante per mantenere la coerenza in memoria
+            fumetto.getWishlists().remove(this);
+        }
     }
 
     // --- equals(), hashCode(), toString() ---

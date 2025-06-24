@@ -2,11 +2,16 @@ package co.develhope.team_project.services;
 
 import co.develhope.team_project.entities.Abbonamento;
 import co.develhope.team_project.entities.Utente;
+import co.develhope.team_project.entities.Fumetto; // Importa Fumetto
+import co.develhope.team_project.entities.Wishlist; // Importa Wishlist
+import co.develhope.team_project.entities.enums.PianoAbbonamentoEnum;
 import co.develhope.team_project.repositories.AbbonamentoRepository;
+import co.develhope.team_project.repositories.FumettoRepository;
 import co.develhope.team_project.repositories.UtenteRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.hibernate.Hibernate;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -21,6 +26,9 @@ public class UtenteService {
 
     @Autowired
     private AbbonamentoRepository abbonamentoRepository;
+
+    @Autowired
+    private FumettoRepository fumettoRepository;
 
     // crea un nuovo utente:
     public Utente createUtente(Utente utente) {
@@ -97,9 +105,25 @@ public class UtenteService {
             Utente utente = utenteOpt.get();
             Abbonamento abbonamento = abbonamentoOpt.get();
 
+            PianoAbbonamentoEnum piano = abbonamento.getPianoAbbonamento();
+
+            if (piano == null) {
+                // Gestisci il caso in cui il piano di abbonamento non sia definito nell'Abbonamento
+                return Optional.empty(); // O lancia un'eccezione specifica
+            }
+
             utente.setAbbonamento(abbonamento);
             utente.setDataInizioAbbonamento(LocalDate.now());
-            // ... (logica per dataFineAbbonamento)
+
+            // --- QUI LA MODIFICA CHIAVE: Utilizza la durataGiorni dall'enum ---
+            Integer durataGiorni = piano.getDurataGiorni();
+            if (durataGiorni != null && durataGiorni > 0) {
+                utente.setDataFineAbbonamento(LocalDate.now().plusDays(durataGiorni));
+            } else {
+                // Gestisci il caso in cui la durata non sia definita o sia zero
+                utente.setDataFineAbbonamento(null);
+            }
+            // ---------------------------------------------------------------
 
             Utente updatedUtente = utenteRepository.save(utente);
             // La wishlist (e abbonamento) sono già caricate grazie al FETCH JOIN
@@ -131,5 +155,53 @@ public class UtenteService {
         List<Utente> listaUtentiAbbonati = utenteRepository.findUtentiAbbonatiWithWishlistAndAbbonamento();
 
         return listaUtentiAbbonati;
+    }
+
+    @Transactional // Necessario per garantire che le relazioni Lazy siano gestite correttamente e per il salvataggio
+    public Optional<Wishlist> addFumettoToWishlist(Long utenteId, Long fumettoId) {
+        // 1. Trova l'utente e inizializza la sua wishlist
+        // Usiamo findByIdWithWishlist per assicurarci che la wishlist sia caricata
+        Optional<Utente> utenteOpt = utenteRepository.findByIdWithWishlist(utenteId);
+        if (utenteOpt.isEmpty()) {
+            // Utente non trovato
+            return Optional.empty();
+        }
+        Utente utente = utenteOpt.get();
+
+        // Assicurati che l'utente abbia una wishlist, altrimenti creane una nuova
+        // Questo è importante se un utente può essere creato senza una wishlist associata
+        if (utente.getWishlist() == null) {
+            Wishlist newWishlist = new Wishlist();
+            newWishlist.setUtente(utente); // Collega la wishlist all'utente
+            utente.setWishlist(newWishlist); // Collega l'utente alla wishlist
+            // La nuova wishlist verrà salvata a cascata con l'utente se cascade è impostato su ALL
+        }
+
+        Wishlist wishlist = utente.getWishlist();
+
+        // Inizializza esplicitamente la collezione di fumetti nella wishlist (se FetchType.LAZY)
+        // anche se è @JsonIgnore, potresti aver bisogno di accedervi per modificarla
+        Hibernate.initialize(wishlist.getFumetti());
+
+
+        // 2. Trova il fumetto
+        Optional<Fumetto> fumettoOpt = fumettoRepository.findById(fumettoId);
+        if (fumettoOpt.isEmpty()) {
+            // Fumetto non trovato
+            return Optional.empty();
+        }
+        Fumetto fumetto = fumettoOpt.get();
+
+        // 3. Aggiungi il fumetto alla wishlist
+        // Assicurati che il metodo addFumetto nella Wishlist gestisca anche il lato Fumetto se necessario
+        wishlist.addFumetto(fumetto);
+
+        // 4. Salva la wishlist (o l'utente, dipende dalla configurazione del cascade)
+        // Poiché la wishlist è mappata by in Utente con CascadeType.ALL, salvare l'utente è sufficiente.
+        // Se la Wishlist avesse un proprio repository e volessi salvare solo la wishlist, potresti farlo lì.
+        // utenteRepository.save(utente); // Questo salverà anche la wishlist a cascata.
+
+        // Ritorna la wishlist aggiornata
+        return Optional.of(wishlist);
     }
 }

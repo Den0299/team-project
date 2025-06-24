@@ -8,5 +8,6 @@ public enum CategoriaFumettoEnum {
     SPORTIVO,
     SCOLASTICO,
     ROMANTICO,
-    AZIONE
+    AZIONE,
+    MANGA
 }
