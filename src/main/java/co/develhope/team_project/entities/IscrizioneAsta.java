@@ -1,5 +1,6 @@
 package co.develhope.team_project.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -24,7 +25,7 @@ public class IscrizioneAsta {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "utente_id", nullable = false) // Un'iscrizione deve sempre essere fatta da un utente
     @NotNull(message = "L'utente associato all'iscrizione non può essere nullo")
-    @JsonIgnore
+    @JsonBackReference
     private Utente utente;
 
     public IscrizioneAsta() {

@@ -34,14 +34,16 @@ public class UtenteService {
 
     // ottieni una lista di tutti gli utenti:
     public List<Utente> getUtenti() {
-        List<Utente> listaUtenti = utenteRepository.findAll();
+        // List<Utente> listaUtenti = utenteRepository.findAll();
+        List<Utente> listaUtenti = utenteRepository.findAllWithWishlist();
 
         return listaUtenti;
     }
 
     // trova un utente per id:
     public Optional<Utente> findUtente(Long id) {
-        Optional<Utente> utenteOptional = utenteRepository.findById(id);
+        // Optional<Utente> utenteOptional = utenteRepository.findById(id);
+        Optional<Utente> utenteOptional = utenteRepository.findByIdWithWishlist(id);
 
         if (utenteOptional.isPresent()) {
             return utenteOptional;
@@ -84,28 +86,26 @@ public class UtenteService {
 
     // associa un abbonamento ad un utente:
     @Transactional // Garantisce che l'operazione sia atomica
-    public Utente associaAbbonamento(Long utenteId, Long abbonamentoId) {
+    public Optional<Utente> associaAbbonamento(Long utenteId, Long abbonamentoId) {
         // 1. Trova l'utente
-        Utente utente = utenteRepository.findById(utenteId)
-                .orElseThrow(() -> new RuntimeException("Utente non trovato con ID: " + utenteId));
+        Optional<Utente> utenteOpt = utenteRepository.findByIdWithWishlistAndAbbonamento(utenteId);
 
         // 2. Trova l'istanza di Abbonamento (es. Abbonamento con PianoAbbonamentoEnum.MENSILE)
-        Abbonamento abbonamento = abbonamentoRepository.findById(abbonamentoId)
-                .orElseThrow(() -> new RuntimeException("Abbonamento non trovato con ID: " + abbonamentoId));
+        Optional<Abbonamento> abbonamentoOpt = abbonamentoRepository.findById(abbonamentoId);
 
-        // 3. Associa l'abbonamento all'utente
-        utente.setAbbonamento(abbonamento);
+        if (utenteOpt.isPresent() && abbonamentoOpt.isPresent()) {
+            Utente utente = utenteOpt.get();
+            Abbonamento abbonamento = abbonamentoOpt.get();
 
-        // 4. Imposta le date di inizio e fine abbonamento
-        LocalDate now = LocalDate.now();
-        utente.setDataInizioAbbonamento(now);
+            utente.setAbbonamento(abbonamento);
+            utente.setDataInizioAbbonamento(LocalDate.now());
+            // ... (logica per dataFineAbbonamento)
 
-        // Accedi alla durata in giorni tramite l'enum PianoAbbonamentoEnum
-        Integer durataGiorni = abbonamento.getPianoAbbonamento().getDurataGiorni();
-        utente.setDataFineAbbonamento(now.plusDays(durataGiorni));
-
-        // 5. Salva l'utente aggiornato
-        return utenteRepository.save(utente);
+            Utente updatedUtente = utenteRepository.save(utente);
+            // La wishlist (e abbonamento) sono già caricate grazie al FETCH JOIN
+            return Optional.of(updatedUtente);
+        }
+        return Optional.empty();
     }
 
     // ottieni una lista di utenti con un abbonamento attivo:

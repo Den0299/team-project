@@ -4,6 +4,7 @@ import co.develhope.team_project.entities.Utente;
 import co.develhope.team_project.services.UtenteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,14 +18,15 @@ public class UtenteController {
     @Autowired
     private UtenteService utenteService;
 
-    // crea un nuovo utente:
-    @PostMapping("/create-utente")
+    @PostMapping(path = "/create-utente", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE) // Aggiungi consumes e produces
     public ResponseEntity<Utente> createUtente(@RequestBody Utente utente) {
         try {
             Utente newUtente = utenteService.createUtente(utente);
-            return ResponseEntity.status(HttpStatus.CREATED).body(newUtente);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return new ResponseEntity<>(newUtente, HttpStatus.CREATED);
+        } catch (Exception e) {
+            // Log dell'eccezione per debugging
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -76,8 +78,8 @@ public class UtenteController {
             @PathVariable Long utenteId,
             @RequestBody Long abbonamentoId) {
         try {
-            Utente updatedUtente = utenteService.associaAbbonamento(utenteId, abbonamentoId);
-            return ResponseEntity.ok(updatedUtente);
+            Optional<Utente> updatedUtente = utenteService.associaAbbonamento(utenteId, abbonamentoId);
+            return ResponseEntity.ok(updatedUtente.get());
         } catch (RuntimeException e) {
             System.err.println("Errore durante l'assegnazione dell'abbonamento: " + e.getMessage());
             e.printStackTrace();

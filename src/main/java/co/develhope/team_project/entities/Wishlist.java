@@ -1,6 +1,7 @@
 package co.develhope.team_project.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
@@ -30,6 +31,7 @@ public class Wishlist {
             joinColumns = @JoinColumn(name = "wishlist_id"), // Colonna che punta a Wishlist
             inverseJoinColumns = @JoinColumn(name = "fumetto_id") // Colonna che punta a Fumetto
     )
+    @JsonIgnore
     private Set<Fumetto> fumetti = new HashSet<>();
 
     @OneToOne(mappedBy = "wishlist", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
@@ -43,7 +45,7 @@ public class Wishlist {
     }
 
     public Wishlist(LocalDate dataCreazione) {
-        this.dataCreazione = dataCreazione;
+        this.dataCreazione = LocalDate.now();
     }
 
     // --- Getters e setters: ---

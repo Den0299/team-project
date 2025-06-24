@@ -74,12 +74,15 @@ public class Utente {
     private Wishlist wishlist;
 
     @OneToMany(mappedBy = "utente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<IscrizioneAsta> iscrizioniAsta = new ArrayList<>();
 
-    @OneToMany(mappedBy = "utente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY) // Lazy loading, gestione cascata e rimozione orfani
+    @OneToMany(mappedBy = "utente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Ordine> ordini = new ArrayList<>();
 
-    @OneToMany(mappedBy = "utenteMiglioreOfferta", fetch = FetchType.LAZY) // Lazy loading
+    @OneToMany(mappedBy = "utenteMiglioreOfferta", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Asta> asteVinte = new ArrayList<>();
 
     // --- Costruttori ---:
@@ -198,6 +201,9 @@ public class Utente {
 
     public void setWishlist(Wishlist wishlist) {
         this.wishlist = wishlist;
+        if (wishlist != null) {
+            wishlist.setUtente(this); // Imposta la relazione bidirezionale anche dal lato Wishlist
+        }
     }
 
     public List<IscrizioneAsta> getIscrizioniAsta() {
