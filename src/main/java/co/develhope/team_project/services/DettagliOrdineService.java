@@ -1,7 +1,11 @@
 package co.develhope.team_project.services;
 
+import co.develhope.team_project.entities.CopiaFumetto;
 import co.develhope.team_project.entities.DettagliOrdine;
+import co.develhope.team_project.entities.Ordine;
+import co.develhope.team_project.repositories.CopiaFumettoRepository;
 import co.develhope.team_project.repositories.DettagliOrdineRepository;
+import co.develhope.team_project.repositories.OrdineRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,11 +18,35 @@ public class DettagliOrdineService {
     @Autowired
     private DettagliOrdineRepository dettagliOrdineRepository;
 
-    public DettagliOrdine createDettagliOrdine(DettagliOrdine dettagliOrdine) {
-        DettagliOrdine nuovoDettagliOrdine = dettagliOrdineRepository.save(dettagliOrdine);
+    @Autowired
+    private CopiaFumettoRepository copiaFumettoRepository;
 
-        return nuovoDettagliOrdine;
+    @Autowired
+    private OrdineRepository ordineRepository;
+
+    public DettagliOrdine createDettagliOrdine(DettagliOrdine dettagliOrdine) {
+        if (dettagliOrdine.getCopiaFumetto() == null || dettagliOrdine.getCopiaFumetto().getCopiaFumettoId() == null) {
+            throw new IllegalArgumentException("copiaFumetto mancante o ID non presente");
+        }
+        if (dettagliOrdine.getOrdine() == null || dettagliOrdine.getOrdine().getOrdineId() == null) {
+            throw new IllegalArgumentException("ordine mancante o ID non presente");
+        }
+
+        Long copiaFumettoId = dettagliOrdine.getCopiaFumetto().getCopiaFumettoId();
+        Long ordineId = dettagliOrdine.getOrdine().getOrdineId();
+
+        CopiaFumetto copia = copiaFumettoRepository.findById(copiaFumettoId)
+                .orElseThrow(() -> new RuntimeException("Copia fumetto non trovata"));
+
+        Ordine ordine = ordineRepository.findById(ordineId)
+                .orElseThrow(() -> new RuntimeException("Ordine non trovato"));
+
+        dettagliOrdine.setCopiaFumetto(copia);
+        dettagliOrdine.setOrdine(ordine);
+
+        return dettagliOrdineRepository.save(dettagliOrdine);
     }
+
 
     public Optional<DettagliOrdine> getDettagliOrdineById(Long dettagliOrdineId) {
         Optional<DettagliOrdine> optionalDettagliOrdine = dettagliOrdineRepository.findById(dettagliOrdineId);
@@ -37,9 +65,7 @@ public class DettagliOrdineService {
 
         if (optionalDettagliOrdine.isPresent()) {
 
-            optionalDettagliOrdine.get().setCopiaFumetto(updatedDettagliOrdine.getCopiaFumetto());
             optionalDettagliOrdine.get().setQuantitaFumetti(updatedDettagliOrdine.getQuantitaFumetti());
-            optionalDettagliOrdine.get().setOrdine(updatedDettagliOrdine.getOrdine());
 
             DettagliOrdine savedDettagliOrdine = dettagliOrdineRepository.save(optionalDettagliOrdine.get());
             return Optional.of(savedDettagliOrdine);
