@@ -1,10 +1,16 @@
 package co.develhope.team_project.services;
 
 import co.develhope.team_project.entities.CopiaFumetto;
+import co.develhope.team_project.entities.Fumetto;
+import co.develhope.team_project.entities.enums.StatoCopiaFumettoEnum;
 import co.develhope.team_project.repositories.CopiaFumettoRepository;
+import co.develhope.team_project.repositories.FumettoRepository;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,10 +20,17 @@ public class CopiaFumettoService {
     @Autowired
     private CopiaFumettoRepository copiaFumettoRepository;
 
-    public CopiaFumetto createCopiaFumetto(CopiaFumetto copiaFumetto) {
-        CopiaFumetto nuovaCopiaFumetto = copiaFumettoRepository.save(copiaFumetto);
+    @Autowired
+    private FumettoRepository fumettoRepository;
 
-        return nuovaCopiaFumetto;
+    public CopiaFumetto createCopiaFumetto(CopiaFumetto copiaFumetto) {
+        // Prendi il fumetto dal DB (completo)
+        Fumetto fumetto = fumettoRepository.findById(copiaFumetto.getFumetto().getFumettoId())
+                .orElseThrow(() -> new RuntimeException("Fumetto non trovato"));
+
+        copiaFumetto.setFumetto(fumetto);
+
+        return copiaFumettoRepository.save(copiaFumetto);
     }
 
     public Optional<CopiaFumetto> getCopiaFumettoById(Long copiaFumettoId) {
@@ -40,7 +53,6 @@ public class CopiaFumettoService {
             optionalCopiaFumetto.get().setStatoCopiaFumetto(updatedCopiaFumetto.getStatoCopiaFumetto());
             optionalCopiaFumetto.get().setPrezzo(updatedCopiaFumetto.getPrezzo());
             optionalCopiaFumetto.get().setDisponibile(updatedCopiaFumetto.isDisponibile());
-            optionalCopiaFumetto.get().setFumetto(updatedCopiaFumetto.getFumetto());
 
             CopiaFumetto savedCopiaFumetto = copiaFumettoRepository.save(optionalCopiaFumetto.get());
             return Optional.of(savedCopiaFumetto);
@@ -56,4 +68,33 @@ public class CopiaFumettoService {
             return optionalCopiaFumetto;
         }
         return Optional.empty();
-    }}
+    }
+
+    //Segna una copia di fumetto come non disponibile, indicandone la vendita.
+    @Transactional
+    public void segnaComeVenduta(Long copiaId) {
+        CopiaFumetto copia = copiaFumettoRepository.findById(copiaId)
+                .orElseThrow(() -> new EntityNotFoundException("Copia non trovata"));
+        copia.setDisponibile(false);
+        copiaFumettoRepository.save(copia);
+    }
+
+    //Restituisce l'elenco di tutte le copie disponibili per un determinato fumetto.
+    public List<CopiaFumetto> listaCopieDisponibili(Long fumettoId) {
+        return copiaFumettoRepository.findByFumettoFumettoIdAndDisponibileTrue(fumettoId);
+    }
+
+    //metodo per aggiornare il prezzo di una copiaFumetto
+    @Transactional
+    public void aggiornaPrezzoCopia(Long copiaId, BigDecimal nuovoPrezzo) {
+        if (nuovoPrezzo == null || nuovoPrezzo.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Il prezzo deve essere positivo");
+        }
+
+        CopiaFumetto copia = copiaFumettoRepository.findById(copiaId)
+                .orElseThrow(() -> new EntityNotFoundException("Copia non trovata"));
+
+        copia.setPrezzo(nuovoPrezzo);
+        copiaFumettoRepository.save(copia);
+    }
+}
