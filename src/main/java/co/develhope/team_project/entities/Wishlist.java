@@ -1,5 +1,6 @@
 package co.develhope.team_project.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
@@ -34,6 +35,7 @@ public class Wishlist {
     private List<Fumetto> fumetti = new ArrayList<>();
 
     @OneToOne(mappedBy = "wishlist", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
     private Utente utente;
 
     // --- Costruttori: ---

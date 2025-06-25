@@ -1,7 +1,7 @@
 package co.develhope.team_project.entities;
 
 import co.develhope.team_project.entities.enums.StatoOrdineEnum;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
@@ -41,7 +41,7 @@ public class Ordine {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "utente_id", nullable = false)
-    @JsonIgnore
+    @JsonBackReference
     private Utente utente;
 
     @OneToMany(mappedBy = "ordine", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -51,11 +51,10 @@ public class Ordine {
 
     public Ordine() {}
 
-    public Ordine(BigDecimal prezzoFinale, LocalDate dataOrdine, StatoOrdineEnum statoOrdineEnum, Utente utente) {
+    public Ordine(BigDecimal prezzoFinale, LocalDate dataOrdine, StatoOrdineEnum statoOrdineEnum) {
         this.prezzoFinale = prezzoFinale;
         this.dataOrdine = dataOrdine;
         this.statoOrdine = statoOrdineEnum;
-        this.utente = utente;
     }
 
     // --- Getters e setters: ---
