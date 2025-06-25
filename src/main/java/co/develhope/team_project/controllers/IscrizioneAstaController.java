@@ -17,12 +17,6 @@ public class IscrizioneAstaController {
     @Autowired
     private IscrizioneAstaService iscrizioneAstaService;
 
-    @PostMapping("/create")
-    public ResponseEntity<IscrizioneAsta> createIscrizioneAsta(@RequestBody IscrizioneAsta iscrizioneAsta) {
-        IscrizioneAsta createdIscrizioneAsta = iscrizioneAstaService.createIscrizioneAsta(iscrizioneAsta);
-        return new ResponseEntity<>(createdIscrizioneAsta, HttpStatus.CREATED);
-    }
-
     @GetMapping("/get-all")
     public ResponseEntity<List<IscrizioneAsta>> getAllIscrizioniAsta() {
         List<IscrizioneAsta> iscrizioneAsta = iscrizioneAstaService.getAllIscrizioniAsta();
@@ -62,4 +56,58 @@ public class IscrizioneAstaController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body("IscrizioneAsta con ID '" + id + "' non trovata.");
     }
+
+    @PostMapping("/{astaId}/iscrivi/{utenteId}")
+    public ResponseEntity<String> createIscrizioneUtenteAsta(
+            @PathVariable Long astaId,
+            @PathVariable Long utenteId) {
+
+        iscrizioneAstaService.createIscrizioneUtenteAsta(utenteId, astaId);
+        return ResponseEntity.ok("Utente iscritto all'asta con successo.");
+    }
+
+    @GetMapping("/verifica-iscrizione-utente")
+    public ResponseEntity<Boolean> isUtenteIscritto(
+            @RequestParam Long utenteId,
+            @RequestParam Long astaId) {
+
+        boolean iscritto = iscrizioneAstaService.isUtenteIscritto(utenteId, astaId);
+        return ResponseEntity.ok(iscritto);
+    }
+
+    // Lista iscrizioni per utente
+    @GetMapping("/utente/{utenteId}")
+    public ResponseEntity<List<IscrizioneAsta>> getIscrizioniPerUtente(@PathVariable Long utenteId) {
+        List<IscrizioneAsta> iscrizioni = iscrizioneAstaService.listaIscrizioniPerUtente(utenteId);
+
+        return ResponseEntity.ok(iscrizioni);
+    }
+
+    // Lista iscrizioni per asta
+    @GetMapping("/asta/{astaId}")
+    public ResponseEntity<List<IscrizioneAsta>> getIscrizioniPerAsta(@PathVariable Long astaId) {
+        List<IscrizioneAsta> iscrizioni = iscrizioneAstaService.listaIscrizioniPerAsta(astaId);
+
+        return ResponseEntity.ok(iscrizioni);
+    }
+
+    // Rimuovi iscrizione
+    @DeleteMapping("/rimuovi-iscrizione-utente")
+    public ResponseEntity<String> rimuoviIscrizione(
+            @RequestParam Long utenteId,
+            @RequestParam Long astaId) {
+
+        iscrizioneAstaService.rimuoviIscrizione(utenteId, astaId);
+        return ResponseEntity.ok("Iscrizione rimossa con successo.");
+    }
+
+    // Conta iscrizioni per asta
+    @GetMapping("/conteggio-iscrizioni/{astaId}")
+    public ResponseEntity<Integer> countIscrizioni(@PathVariable Long astaId) {
+
+        Integer count = iscrizioneAstaService.countIscrizioniPerAsta(astaId);
+        return ResponseEntity.ok(count);
+    }
+
+
 }
