@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "abbonamenti")
@@ -52,6 +53,27 @@ public class Abbonamento {
 
     public void setUtenti(List<Utente> utenti) {
         this.utenti = utenti;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Abbonamento that = (Abbonamento) o;
+        return Objects.equals(abbonamentoId, that.abbonamentoId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(abbonamentoId);
+    }
+
+    @Override
+    public String toString() {
+        return "Abbonamento{" +
+                "abbonamentoId=" + abbonamentoId +
+                ", pianoAbbonamento=" + pianoAbbonamento +
+                ", utenti=" + utenti +
+                '}';
     }
 }
 
