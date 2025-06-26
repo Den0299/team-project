@@ -14,13 +14,6 @@ public class WishlistService {
     @Autowired
     private WishlistRepository wishlistRepository;
 
-    // crea una nuova wishlist:
-    public Wishlist addWishlist(Wishlist wishlist) {
-        Wishlist nuovaWishlist = wishlistRepository.save(wishlist);
-
-        return nuovaWishlist;
-    }
-
     // ottieni una lista di tutte le wishlist:
     public List<Wishlist> getWishlists() {
         List<Wishlist> listaWishlists = wishlistRepository.findAll();

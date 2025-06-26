@@ -17,14 +17,6 @@ public class WishlistController {
     @Autowired
     private WishlistService wishlistService;
 
-    // crea una nuova wishlist:
-    @PostMapping("/create-wishlist")
-    public ResponseEntity<Wishlist> addWishlist(@RequestBody Wishlist wishlist) {
-        Wishlist wishlistToAdd = wishlistService.addWishlist(wishlist);
-
-        return new ResponseEntity<>(wishlistToAdd, HttpStatus.CREATED);
-    }
-
     // ottieni una lista di tutte le wishlists:
     @GetMapping("/get-wishlists")
     public ResponseEntity<List<Wishlist>> getWishlists() {
