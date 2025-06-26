@@ -1,13 +1,13 @@
 package co.develhope.team_project.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 @Table(name = "wishlists")
@@ -31,17 +31,20 @@ public class Wishlist {
             joinColumns = @JoinColumn(name = "wishlist_id"), // Colonna che punta a Wishlist
             inverseJoinColumns = @JoinColumn(name = "fumetto_id") // Colonna che punta a Fumetto
     )
-    private List<Fumetto> fumetti = new ArrayList<>();
+    private Set<Fumetto> fumetti = new HashSet<>();
 
     @OneToOne(mappedBy = "wishlist", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
     private Utente utente;
 
     // --- Costruttori: ---
 
-    public Wishlist() {}
+    public Wishlist() {
+        this.dataCreazione = LocalDate.now();
+    }
 
     public Wishlist(LocalDate dataCreazione) {
-        this.dataCreazione = dataCreazione;
+        this.dataCreazione = LocalDate.now();
     }
 
     // --- Getters e setters: ---
@@ -62,11 +65,11 @@ public class Wishlist {
         this.dataCreazione = dataCreazione;
     }
 
-    public List<Fumetto> getFumetti() {
+    public Set<Fumetto> getFumetti() {
         return fumetti;
     }
 
-    public void setFumetti(List<Fumetto> fumetti) {
+    public void setFumetti(Set<Fumetto> fumetti) {
         this.fumetti = fumetti;
     }
 
@@ -81,13 +84,21 @@ public class Wishlist {
     // --- Metodi Helper per la relazione ManyToMany con Fumetto: ---
 
     public void addFumetto(Fumetto fumetto) {
-        if (!this.fumetti.contains(fumetto)) {
+        if (fumetto != null && !this.fumetti.contains(fumetto)) {
             this.fumetti.add(fumetto);
+            // Questa chiamata qui è importante per mantenere la coerenza in memoria
+            // ma non deve causare un ciclo infinito. Il check in Fumetto.addWishlist
+            // dovrebbe prevenire l'aggiunta ridondante.
+            fumetto.getWishlists().add(this);
         }
     }
 
     public void removeFumetto(Fumetto fumetto) {
-        this.fumetti.remove(fumetto);
+        if (fumetto != null && this.fumetti.contains(fumetto)) {
+            this.fumetti.remove(fumetto);
+            // Questa chiamata qui è importante per mantenere la coerenza in memoria
+            fumetto.getWishlists().remove(this);
+        }
     }
 
     // --- equals(), hashCode(), toString() ---
