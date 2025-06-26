@@ -1,6 +1,7 @@
 package co.develhope.team_project.entities;
 
 import co.develhope.team_project.entities.enums.CategoriaFumettoEnum;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -8,9 +9,7 @@ import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 @Table(name = "fumetti")
@@ -51,8 +50,9 @@ public class Fumetto {
 
     // --- Chiavi esterne: ---
 
-    @ManyToMany(mappedBy = "fumetti", fetch = FetchType.LAZY) // forse opzionale
-    private List<Wishlist> wishlists = new ArrayList<>();
+    @ManyToMany(mappedBy = "fumetti", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<Wishlist> wishlists = new HashSet<>();
 
     @OneToMany(mappedBy = "fumetto", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<CopiaFumetto> copieFumetto = new ArrayList<>();
@@ -137,11 +137,11 @@ public class Fumetto {
         this.categoriaFumetto = categoriaFumetto;
     }
 
-    public List<Wishlist> getWishlists() {
+    public Set<Wishlist> getWishlists() {
         return wishlists;
     }
 
-    public void setWishlists(List<Wishlist> wishlists) {
+    public void setWishlists(Set<Wishlist> wishlists) {
         this.wishlists = wishlists;
     }
 
@@ -156,13 +156,18 @@ public class Fumetto {
     // --- Metodi Helper per la relazione ManyToMany con Wishlist: ---
 
     public void addWishlist(Wishlist wishlist) {
-        if (!this.wishlists.contains(wishlist)) {
+        if (wishlist != null && !this.wishlists.contains(wishlist)) {
             this.wishlists.add(wishlist);
+            // Non chiamare wishlist.addFumetto(this) qui, altrimenti si crea un loop infinito
+            // dal momento che wishlist.addFumetto(this) a sua volta chiama fumetto.addWishlist(this)
         }
     }
 
     public void removeWishlist(Wishlist wishlist) {
-        this.wishlists.remove(wishlist);
+        if (wishlist != null && this.wishlists.contains(wishlist)) {
+            this.wishlists.remove(wishlist);
+            // Non chiamare wishlist.removeFumetto(this) qui per lo stesso motivo del loop
+        }
     }
 
     // --- equals(), hashCode(), toString() ---

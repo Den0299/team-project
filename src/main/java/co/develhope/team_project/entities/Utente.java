@@ -2,6 +2,7 @@ package co.develhope.team_project.entities;
 
 import co.develhope.team_project.entities.enums.RuoloUtenteEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -38,6 +39,7 @@ public class Utente {
     @Size(max = 255, message = "L'email non può superare i 255 caratteri")
     private String email;
 
+    @Column(nullable = false)
     @NotBlank(message = "La password non può essere vuota")
     @Size(min = 8, message = "La password deve avere almeno 8 caratteri")
     private String password;
@@ -45,10 +47,10 @@ public class Utente {
     @Size(max = 255, message = "L'indirizzo non può superare i 255 caratteri")
     private String indirizzo;
 
-    @PastOrPresent(message = "La data di inizio abbonamento non può essere nel futuro")
+    @Column
     private LocalDate dataInizioAbbonamento;
 
-    @PastOrPresent(message = "La data di fine abbonamento non può essere nel futuro")
+    @Column
     private LocalDate dataFineAbbonamento;
 
     @NotNull(message = "La data di registrazione non può essere nulla")
@@ -68,29 +70,39 @@ public class Utente {
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "wishlist_id")
+    @JsonManagedReference
     private Wishlist wishlist;
 
     @OneToMany(mappedBy = "utente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<IscrizioneAsta> iscrizioniAsta = new ArrayList<>();
 
-    @OneToMany(mappedBy = "utente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY) // Lazy loading, gestione cascata e rimozione orfani
+    @OneToMany(mappedBy = "utente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Ordine> ordini = new ArrayList<>();
 
-    @OneToMany(mappedBy = "utenteMiglioreOfferta", fetch = FetchType.LAZY) // Lazy loading
+    @OneToMany(mappedBy = "utenteMiglioreOfferta", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Asta> asteVinte = new ArrayList<>();
 
     // --- Costruttori ---:
 
-    public Utente() {}
+    public Utente() {
+        this.dataRegistrazione = LocalDate.now(); // Data di registrazione di default
+        this.ruoloUtente = RuoloUtenteEnum.CLIENTE;      // Ruolo di default se non specificato
+        this.wishlist = new Wishlist();           // Inizializza una nuova Wishlist qui!
+        // Se vuoi impostare l'utente anche nella wishlist (relazione bidirezionale),
+        this.wishlist.setUtente(this);
+    }
 
     public Utente(String nome, String cognome, String email, String password, String indirizzo, RuoloUtenteEnum ruoloUtente) {
+        this();
         this.nome = nome;
         this.cognome = cognome;
         this.email = email;
         this.password = password;
         this.indirizzo = indirizzo;
         this.ruoloUtente = ruoloUtente;
-        this.dataRegistrazione = LocalDate.now();
     }
 
     // --- Getters e setters ---:
@@ -189,6 +201,9 @@ public class Utente {
 
     public void setWishlist(Wishlist wishlist) {
         this.wishlist = wishlist;
+        if (wishlist != null) {
+            wishlist.setUtente(this); // Imposta la relazione bidirezionale anche dal lato Wishlist
+        }
     }
 
     public List<IscrizioneAsta> getIscrizioniAsta() {
