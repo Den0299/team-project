@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "copie_fumetto")
@@ -38,12 +39,10 @@ public class CopiaFumetto {
     public CopiaFumetto() {
     }
 
-    public CopiaFumetto(Long copiaFumettoId, StatoCopiaFumettoEnum statoCopiaFumetto, BigDecimal prezzo, boolean disponibile, Fumetto fumetto) {
-        this.copiaFumettoId = copiaFumettoId;
+    public CopiaFumetto(StatoCopiaFumettoEnum statoCopiaFumetto, BigDecimal prezzo, boolean disponibile) {
         this.statoCopiaFumetto = statoCopiaFumetto;
         this.prezzo = prezzo;
         this.disponibile = disponibile;
-        this.fumetto = fumetto;
     }
 
     public Long getCopiaFumettoId() {
@@ -92,6 +91,30 @@ public class CopiaFumetto {
 
     public void setDettagliOrdini(List<DettagliOrdine> dettagliOrdini) {
         this.dettagliOrdini = dettagliOrdini;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        CopiaFumetto that = (CopiaFumetto) o;
+        return Objects.equals(copiaFumettoId, that.copiaFumettoId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(copiaFumettoId);
+    }
+
+    @Override
+    public String toString() {
+        return "CopiaFumetto{" +
+                "copiaFumettoId=" + copiaFumettoId +
+                ", statoCopiaFumetto=" + statoCopiaFumetto +
+                ", prezzo=" + prezzo +
+                ", disponibile=" + disponibile +
+                ", fumetto=" + fumetto +
+                ", dettagliOrdini=" + dettagliOrdini +
+                '}';
     }
 }
 

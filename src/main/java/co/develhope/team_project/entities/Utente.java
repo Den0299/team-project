@@ -3,6 +3,7 @@ package co.develhope.team_project.entities;
 import co.develhope.team_project.entities.enums.RuoloUtenteEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -82,7 +83,7 @@ public class Utente {
     private List<Ordine> ordini = new ArrayList<>();
 
     @OneToMany(mappedBy = "utenteMiglioreOfferta", fetch = FetchType.LAZY)
-    @JsonIgnore
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private List<Asta> asteVinte = new ArrayList<>();
 
     // --- Costruttori ---:

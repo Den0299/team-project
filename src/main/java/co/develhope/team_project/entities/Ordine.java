@@ -52,11 +52,10 @@ public class Ordine {
 
     public Ordine() {}
 
-    public Ordine(BigDecimal prezzoFinale, LocalDate dataOrdine, StatoOrdineEnum statoOrdineEnum, Utente utente) {
+    public Ordine(BigDecimal prezzoFinale, LocalDate dataOrdine, StatoOrdineEnum statoOrdineEnum) {
         this.prezzoFinale = prezzoFinale;
         this.dataOrdine = dataOrdine;
         this.statoOrdine = statoOrdineEnum;
-        this.utente = utente;
     }
 
     // --- Getters e setters: ---

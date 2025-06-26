@@ -1,7 +1,9 @@
 package co.develhope.team_project.services;
 
 import co.develhope.team_project.entities.Ordine;
+import co.develhope.team_project.entities.Utente;
 import co.develhope.team_project.repositories.OrdineRepository;
+import co.develhope.team_project.repositories.UtenteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,11 +16,15 @@ public class OrdineService {
     @Autowired
     private OrdineRepository ordineRepository;
 
-    // crea un nuovo ordine:
-    public Ordine addOrdine(Ordine ordine) {
-        Ordine nuovoOrdine = ordineRepository.save(ordine);
+    @Autowired
+    private UtenteRepository utenteRepository;
 
-        return nuovoOrdine;
+    public Ordine createOrdine(Ordine ordine) {
+        Utente utente = utenteRepository.findById(ordine.getUtente().getUtenteId())
+                .orElseThrow(() -> new RuntimeException("Utente non trovato"));
+
+        ordine.setUtente(utente);
+        return ordineRepository.save(ordine);
     }
 
     // ottieni una lista di tutti gli ordini:
@@ -58,7 +64,6 @@ public class OrdineService {
             ordineOptional.get().setPrezzoFinale(ordineDetails.getPrezzoFinale());
             ordineOptional.get().setDataOrdine(ordineDetails.getDataOrdine());
             ordineOptional.get().setStatoOrdine(ordineDetails.getStatoOrdine());
-            ordineOptional.get().setUtente(ordineDetails.getUtente());
 
             Ordine utenteModificato = ordineRepository.save(ordineOptional.get());
             return Optional.of(utenteModificato);

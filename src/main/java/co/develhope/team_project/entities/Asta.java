@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "aste")
@@ -57,13 +58,11 @@ public class Asta {
     public Asta() {
     }
 
-    public Asta(Long astaId, LocalDate dataInizio, LocalDate dataFine, BigDecimal offertaCorrente, StatoAstaEnum statoAsta, CopiaFumetto copiaFumetto) {
-        this.astaId = astaId;
+    public Asta(LocalDate dataInizio, LocalDate dataFine, BigDecimal offertaCorrente, StatoAstaEnum statoAsta) {
         this.dataInizio = dataInizio;
         this.dataFine = dataFine;
         this.offertaCorrente = offertaCorrente;
         this.statoAsta = statoAsta;
-        this.copiaFumetto = copiaFumetto;
     }
 
     public Long getAstaId() {
@@ -128,6 +127,32 @@ public class Asta {
 
     public void setIscrizioniAsta(List<IscrizioneAsta> iscrizioniAsta) {
         this.iscrizioniAsta = iscrizioniAsta;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Asta asta = (Asta) o;
+        return Objects.equals(astaId, asta.astaId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(astaId);
+    }
+
+    @Override
+    public String toString() {
+        return "Asta{" +
+                "astaId=" + astaId +
+                ", dataInizio=" + dataInizio +
+                ", dataFine=" + dataFine +
+                ", offertaCorrente=" + offertaCorrente +
+                ", utenteMiglioreOfferta=" + utenteMiglioreOfferta +
+                ", statoAsta=" + statoAsta +
+                ", copiaFumetto=" + copiaFumetto +
+                ", iscrizioniAsta=" + iscrizioniAsta +
+                '}';
     }
 }
 

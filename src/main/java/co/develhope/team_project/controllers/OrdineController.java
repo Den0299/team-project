@@ -19,8 +19,8 @@ public class OrdineController {
 
     // crea un nuovo ordine:
     @PostMapping("/create-ordine")
-    public ResponseEntity<Ordine> addOrdine(@RequestBody Ordine ordine) {
-        Ordine ordineToAdd = ordineService.addOrdine(ordine);
+    public ResponseEntity<Ordine> createOrdine(@RequestBody Ordine ordine) {
+        Ordine ordineToAdd = ordineService.createOrdine(ordine);
 
         return new ResponseEntity<>(ordineToAdd, HttpStatus.CREATED);
     }

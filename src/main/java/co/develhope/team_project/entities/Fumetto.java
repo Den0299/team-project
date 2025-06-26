@@ -55,6 +55,7 @@ public class Fumetto {
     private Set<Wishlist> wishlists = new HashSet<>();
 
     @OneToMany(mappedBy = "fumetto", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<CopiaFumetto> copieFumetto = new ArrayList<>();
 
     // --- Costruttori: ---
