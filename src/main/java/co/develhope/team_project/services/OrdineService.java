@@ -136,4 +136,27 @@ public class OrdineService {
             return Collections.emptyList(); // Ritorna una lista vuota se l'utente non esiste
         }
     }
+
+    /**
+     * Aggiorna lo stato di un ordine specifico.
+     *
+     * @param ordineId L'ID dell'ordine da aggiornare.
+     * @param nuovoStato Il nuovo stato da assegnare all'ordine.
+     * @return Un Optional contenente l'Ordine aggiornato se trovato, altrimenti un Optional vuoto.
+     */
+    @Transactional
+    public Optional<Ordine> aggiornaStatoOrdine(Long ordineId, StatoOrdineEnum nuovoStato) {
+        Optional<Ordine> ordineOpt = ordineRepository.findById(ordineId);
+
+        if (ordineOpt.isPresent()) {
+            Ordine ordine = ordineOpt.get();
+            ordine.setStatoOrdine(nuovoStato);
+            // Non è sempre necessario chiamare save() esplicitamente in un metodo @Transactional
+            // se l'entità è stata recuperata all'interno della stessa transazione e modificata.
+            // Hibernate rileverà il cambiamento e lo persisterà al commit.
+            // Tuttavia, chiamarlo è esplicito e non fa male.
+            return Optional.of(ordineRepository.save(ordine));
+        }
+        return Optional.empty();
+    }
 }

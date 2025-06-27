@@ -1,6 +1,7 @@
 package co.develhope.team_project.controllers;
 
 import co.develhope.team_project.entities.Ordine;
+import co.develhope.team_project.entities.enums.StatoOrdineEnum;
 import co.develhope.team_project.services.OrdineService;
 import co.develhope.team_project.services.UtenteService;
 import jakarta.validation.Valid;
@@ -118,6 +119,33 @@ public class OrdineController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
             return new ResponseEntity<>(ordini, HttpStatus.OK);
+        }
+    }
+
+    /**
+     * Aggiorna lo stato di un ordine specifico.
+     * PUT /api/ordini/{ordineId}/stato
+     *
+     * @param ordineId L'ID dell'ordine da aggiornare.
+     * @param nuovoStato Il nuovo stato (come stringa, che verrà convertita nell'enum).
+     * @return 200 OK con l'Ordine aggiornato, o 404 NOT FOUND se l'ordine non esiste.
+     */
+    @PutMapping(path = "/update-stato-ordine/{ordineId}", consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Ordine> updateStatoOrdine(
+            @PathVariable Long ordineId,
+            @RequestBody String nuovoStato) {
+
+        try {
+            StatoOrdineEnum statoEnum = StatoOrdineEnum.valueOf(nuovoStato.toUpperCase());
+            Optional<Ordine> updatedOrdineOpt = ordineService.aggiornaStatoOrdine(ordineId, statoEnum);
+
+            if (updatedOrdineOpt.isPresent()) {
+                return new ResponseEntity<>(updatedOrdineOpt.get(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 }
