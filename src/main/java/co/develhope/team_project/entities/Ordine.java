@@ -3,6 +3,7 @@ package co.develhope.team_project.entities;
 import co.develhope.team_project.entities.enums.StatoOrdineEnum;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
@@ -46,6 +47,7 @@ public class Ordine {
     private Utente utente;
 
     @OneToMany(mappedBy = "ordine", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private List<DettagliOrdine> dettagliOrdini = new ArrayList<>();
 
     // --- Costruttori: ---

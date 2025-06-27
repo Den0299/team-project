@@ -1,8 +1,12 @@
 package co.develhope.team_project.services;
 
+import co.develhope.team_project.entities.CopiaFumetto;
 import co.develhope.team_project.entities.enums.StatoOrdineEnum;
 import co.develhope.team_project.entities.Ordine;
 import co.develhope.team_project.entities.Utente;
+import co.develhope.team_project.entities.DettagliOrdine;
+import co.develhope.team_project.repositories.CopiaFumettoRepository;
+import co.develhope.team_project.repositories.DettagliOrdineRepository;
 import co.develhope.team_project.repositories.OrdineRepository;
 import co.develhope.team_project.repositories.UtenteRepository;
 //import jakarta.transaction.Transactional;
@@ -23,6 +27,12 @@ public class OrdineService {
 
     @Autowired
     private UtenteRepository utenteRepository;
+
+    @Autowired
+    private DettagliOrdineRepository dettagliOrdineRepository;
+
+    @Autowired
+    private CopiaFumettoRepository copiaFumettoRepository;
 
     public Ordine createOrdine(Ordine ordine) {
         Utente utente = utenteRepository.findById(ordine.getUtente().getUtenteId())
@@ -158,5 +168,55 @@ public class OrdineService {
             return Optional.of(ordineRepository.save(ordine));
         }
         return Optional.empty();
+    }
+
+    /**
+     * Aggiunge un dettaglio a un ordine esistente.
+     *
+     * @param ordineId L'ID dell'ordine a cui aggiungere il dettaglio.
+     * @param dettaglioOrdine Il nuovo oggetto DettagliOrdine da salvare (deve includere copiaFumetto).
+     * @return Un Optional contenente l'Ordine aggiornato con il nuovo dettaglio, altrimenti un Optional vuoto.
+     */
+    @Transactional
+    public Optional<Ordine> aggiungiDettaglioAdOrdine(Long ordineId, DettagliOrdine dettaglioOrdine) {
+        Optional<Ordine> ordineOpt = ordineRepository.findById(ordineId);
+
+        // Se CopiaFumetto non è stato impostato sul DettaglioOrdine in ingresso,
+        // o se il suo ID non è valido, dobbiamo recuperarlo.
+        // Assumiamo che l'ID della CopiaFumetto sia presente nell'oggetto dettaglioOrdine fornito.
+        if (dettaglioOrdine.getCopiaFumetto() == null || dettaglioOrdine.getCopiaFumetto().getCopiaFumettoId() == null) {
+            return Optional.empty(); // CopiaFumetto mancante o invalido nel dettaglio
+        }
+
+        Optional<CopiaFumetto> copiaFumettoOpt = copiaFumettoRepository.findById(dettaglioOrdine.getCopiaFumetto().getCopiaFumettoId());
+
+
+        if (ordineOpt.isPresent() && copiaFumettoOpt.isPresent()) {
+            Ordine ordine = ordineOpt.get();
+            CopiaFumetto copiaFumetto = copiaFumettoOpt.get();
+
+            dettaglioOrdine.setOrdine(ordine);          // Collega il dettaglio all'ordine
+            dettaglioOrdine.setCopiaFumetto(copiaFumetto); // Associa la CopiaFumetto gestita
+
+            // Aggiungi il dettaglio alla lista nell'ordine (per consistenza bidirezionale)
+            // Se la collezione è Lazy, questo la caricherà e poi aggiungerà.
+            ordine.getDettagliOrdini().add(dettaglioOrdine);
+
+            // Salva il DettaglioOrdine. A causa di `CascadeType.ALL` su Ordine.dettagliOrdini,
+            // il salvataggio dell'ordine dovrebbe persistere anche il dettaglio.
+            // Tuttavia, per chiarezza e certezza, puoi salvarlo esplicitamente.
+            dettagliOrdineRepository.save(dettaglioOrdine);
+
+            // Ricarica l'ordine per assicurarsi che la collezione di dettagli sia aggiornata,
+            // se si riscontrano problemi di deserializzazione successiva
+            // Oppure, semplicemente salva l'ordine per propagare le modifiche se necessario
+            // ordineRepository.save(ordine); // Potrebbe essere superfluo se @Transactional gestisce l'aggiornamento
+
+            // La query `findByUtenteIdWithDettagliOrdine` nel repository già usa un `LEFT JOIN FETCH`,
+            // quindi quando recuperi l'ordine in seguito, i dettagli dovrebbero essere presenti.
+
+            return Optional.of(ordine); // Restituisci l'ordine con il nuovo dettaglio associato
+        }
+        return Optional.empty(); // Ordine o CopiaFumetto non trovati
     }
 }

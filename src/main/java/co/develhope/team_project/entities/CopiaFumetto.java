@@ -1,6 +1,7 @@
 package co.develhope.team_project.entities;
 
 import co.develhope.team_project.entities.enums.StatoCopiaFumettoEnum;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
@@ -30,10 +31,12 @@ public class CopiaFumetto {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fumetto_id", nullable = false) // Una copia deve sempre essere associata a un fumetto
-    @NotNull(message = "Il fumetto associato alla copia non può essere nullo")
+    //@NotNull(message = "Il fumetto associato alla copia non può essere nullo")
+    @JsonIgnore
     private Fumetto fumetto;
 
     @OneToMany(mappedBy = "copiaFumetto", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<DettagliOrdine> dettagliOrdini = new ArrayList<>();
 
     public CopiaFumetto() {

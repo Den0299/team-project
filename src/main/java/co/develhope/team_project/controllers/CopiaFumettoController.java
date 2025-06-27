@@ -2,8 +2,10 @@ package co.develhope.team_project.controllers;
 
 import co.develhope.team_project.entities.CopiaFumetto;
 import co.develhope.team_project.services.CopiaFumettoService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -89,4 +91,24 @@ public class CopiaFumettoController {
         return ResponseEntity.ok("Prezzo aggiornato con successo.");
     }
 
+    /**
+     * Crea una nuova copia di fumetto associata a un fumetto esistente.
+     * POST /api/copie-fumetto/fumetto/{fumettoId}
+     * @param fumettoId L'ID del fumetto a cui associare la copia.
+     * @param copiaFumetto La copia del fumetto da creare.
+     * @return 201 CREATED con la copia del fumetto, o 404 NOT FOUND se il fumetto non esiste.
+     */
+    @PostMapping(path = "/create-copia-fumetto/{fumettoId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CopiaFumetto> creaCopiaFumetto(
+            @PathVariable Long fumettoId,
+            @Valid @RequestBody CopiaFumetto copiaFumetto) {
+
+        Optional<CopiaFumetto> nuovaCopiaOpt = copiaFumettoService.creaCopiaFumetto(fumettoId, copiaFumetto);
+
+        if (nuovaCopiaOpt.isPresent()) {
+            return new ResponseEntity<>(nuovaCopiaOpt.get(), HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Fumetto non trovato
+        }
+    }
 }

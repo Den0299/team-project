@@ -1,5 +1,6 @@
 package co.develhope.team_project.controllers;
 
+import co.develhope.team_project.entities.DettagliOrdine;
 import co.develhope.team_project.entities.Ordine;
 import co.develhope.team_project.entities.enums.StatoOrdineEnum;
 import co.develhope.team_project.services.OrdineService;
@@ -146,6 +147,33 @@ public class OrdineController {
             }
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Aggiunge un nuovo dettaglio (es. un fumetto specifico con quantità) a un ordine esistente.
+     * POST /api/ordini/{ordineId}/dettagli
+     *
+     * @param ordineId L'ID dell'ordine a cui aggiungere il dettaglio.
+     * @param dettaglioOrdine L'oggetto DettagliOrdine inviato nel corpo della richiesta.
+     * @return 200 OK con l'Ordine aggiornato (incluso il nuovo dettaglio), 404 NOT FOUND se ordine/copiaFumetto non esiste,
+     * o 400 BAD REQUEST per problemi di validazione.
+     */
+    @PostMapping(path = "/{ordineId}/dettagli", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Ordine> aggiungiDettaglioAdOrdine(
+            @PathVariable Long ordineId,
+            @Valid @RequestBody DettagliOrdine dettaglioOrdine) { // Accetta l'entità DettagliOrdine direttamente
+
+        Optional<Ordine> updatedOrdineOpt = ordineService.aggiungiDettaglioAdOrdine(ordineId, dettaglioOrdine);
+
+        if (updatedOrdineOpt.isPresent()) {
+            return new ResponseEntity<>(updatedOrdineOpt.get(), HttpStatus.OK);
+        } else {
+            // È utile capire se l'errore è dovuto a ordine non trovato o copiaFumetto non trovata.
+            // Il servizio restituisce Optional.empty() in entrambi i casi.
+            // Per un API più robusta, potresti voler gestire questi casi separatamente.
+            // Per ora, un generico 404.
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 }

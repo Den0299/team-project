@@ -154,7 +154,7 @@ public class Fumetto {
         this.copieFumetto = copieFumetto;
     }
 
-    // --- Metodi Helper per la relazione ManyToMany con Wishlist: ---
+    // --- Metodi Helper: ---
 
     public void addWishlist(Wishlist wishlist) {
         if (wishlist != null && !this.wishlists.contains(wishlist)) {
@@ -169,6 +169,16 @@ public class Fumetto {
             this.wishlists.remove(wishlist);
             // Non chiamare wishlist.removeFumetto(this) qui per lo stesso motivo del loop
         }
+    }
+
+    public void addCopiaFumetto(CopiaFumetto copia) {
+        this.copieFumetto.add(copia);
+        copia.setFumetto(this);
+    }
+
+    public void removeCopiaFumetto(CopiaFumetto copia) {
+        this.copieFumetto.remove(copia);
+        copia.setFumetto(null);
     }
 
     // --- equals(), hashCode(), toString() ---
