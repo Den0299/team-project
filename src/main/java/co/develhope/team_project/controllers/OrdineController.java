@@ -2,6 +2,7 @@ package co.develhope.team_project.controllers;
 
 import co.develhope.team_project.entities.Ordine;
 import co.develhope.team_project.services.OrdineService;
+import co.develhope.team_project.services.UtenteService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,9 @@ public class OrdineController {
     
     @Autowired
     private OrdineService ordineService;
+
+    @Autowired
+    private UtenteService utenteService;
 
     // crea un nuovo ordine:
     @PostMapping("/create-ordine")
@@ -89,6 +93,31 @@ public class OrdineController {
             return new ResponseEntity<>(ordineCreatoOpt.get(), HttpStatus.CREATED);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Utente non trovato
+        }
+    }
+
+    /**
+     * Recupera tutti gli ordini di un utente specifico.
+     * GET /api/ordini/utente/{utenteId}
+     *
+     * @param utenteId L'ID dell'utente.
+     * @return Una lista di Ordini, o 404 NOT FOUND se l'utente non esiste.
+     */
+    @GetMapping(path = "/find-ordini/{utenteId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Ordine>> getOrdiniByUtente(@PathVariable Long utenteId) {
+        List<Ordine> ordini = ordineService.getOrdiniByUtente(utenteId);
+
+        // Se la lista è vuota, potremmo voler distinguere se è perché l'utente non esiste
+        // o se l'utente esiste ma non ha ordini.
+        // Dato che il service restituisce una lista vuota se l'utente non esiste,
+        // e una lista (anche vuota) se l'utente esiste ma non ha ordini,
+        // un HttpStatus.OK con una lista vuota è tecnicamente corretto anche per utente non trovato.
+        // Se volessi un 404 per utente non trovato, dovresti fare un check esplicito nel controller
+        // sull'esistenza dell'utente (magari tramite un metodo in UtenteService).
+        if (ordini.isEmpty() && !utenteService.existsById(utenteId)) { // Assumi che UtenteService abbia un existsById
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else {
+            return new ResponseEntity<>(ordini, HttpStatus.OK);
         }
     }
 }

@@ -2,8 +2,8 @@ package co.develhope.team_project.services;
 
 import co.develhope.team_project.entities.Abbonamento;
 import co.develhope.team_project.entities.Utente;
-import co.develhope.team_project.entities.Fumetto; // Importa Fumetto
-import co.develhope.team_project.entities.Wishlist; // Importa Wishlist
+import co.develhope.team_project.entities.Fumetto;
+import co.develhope.team_project.entities.Wishlist;
 import co.develhope.team_project.entities.enums.PianoAbbonamentoEnum;
 import co.develhope.team_project.repositories.AbbonamentoRepository;
 import co.develhope.team_project.repositories.FumettoRepository;
@@ -90,6 +90,12 @@ public class UtenteService {
             return Optional.of(utenteModificato);
         }
         return Optional.empty();
+    }
+
+    // verifica con un booleano se un utente esiste per id:
+    @Transactional(readOnly = true)
+    public boolean existsById(Long utenteId) {
+        return utenteRepository.existsById(utenteId);
     }
 
     // associa un abbonamento ad un utente:

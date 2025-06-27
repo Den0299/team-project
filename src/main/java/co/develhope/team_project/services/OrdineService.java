@@ -5,11 +5,13 @@ import co.develhope.team_project.entities.Ordine;
 import co.develhope.team_project.entities.Utente;
 import co.develhope.team_project.repositories.OrdineRepository;
 import co.develhope.team_project.repositories.UtenteRepository;
-import jakarta.transaction.Transactional;
+//import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -112,5 +114,26 @@ public class OrdineService {
             return Optional.of(ordineSalvato);
         }
         return Optional.empty(); // Utente non trovato
+    }
+
+    /**
+     * Recupera tutti gli ordini effettuati da un utente specifico.
+     *
+     * @param utenteId L'ID dell'utente di cui recuperare gli ordini.
+     * @return Una lista di Ordini se l'utente esiste, altrimenti una lista vuota.
+     */
+    @Transactional(readOnly = true) // readOnly = true ottimizza la transazione per sole letture
+    public List<Ordine> getOrdiniByUtente(Long utenteId) {
+        // Prima verifica se l'utente esiste.
+        // Questo è importante per distinguere tra "nessun ordine per questo utente"
+        // e "l'utente non esiste affatto".
+        boolean utenteEsiste = utenteRepository.existsById(utenteId);
+
+        if (utenteEsiste) {
+            // Se l'utente esiste, recupera gli ordini usando la query con FETCH JOIN
+            return ordineRepository.findByUtenteIdWithDettagliOrdine(utenteId);
+        } else {
+            return Collections.emptyList(); // Ritorna una lista vuota se l'utente non esiste
+        }
     }
 }
