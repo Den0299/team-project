@@ -1,5 +1,6 @@
 package co.develhope.team_project.services;
 
+import co.develhope.team_project.dtos.DettagliOrdineInputDTO;
 import co.develhope.team_project.entities.CopiaFumetto;
 import co.develhope.team_project.entities.enums.StatoOrdineEnum;
 import co.develhope.team_project.entities.Ordine;
@@ -171,52 +172,44 @@ public class OrdineService {
     }
 
     /**
-     * Aggiunge un dettaglio a un ordine esistente.
+     * Aggiunge un nuovo dettaglio a un ordine esistente.
      *
      * @param ordineId L'ID dell'ordine a cui aggiungere il dettaglio.
-     * @param dettaglioOrdine Il nuovo oggetto DettagliOrdine da salvare (deve includere copiaFumetto).
-     * @return Un Optional contenente l'Ordine aggiornato con il nuovo dettaglio, altrimenti un Optional vuoto.
+     * @param dettagliOrdineDTO Il DTO contenente i dati per il nuovo dettaglio (ID copia fumetto e quantità).
+     * @return Un Optional contenente l'Ordine aggiornato se l'ordine e la copia fumetto esistono, altrimenti un Optional vuoto.
      */
     @Transactional
-    public Optional<Ordine> aggiungiDettaglioAdOrdine(Long ordineId, DettagliOrdine dettaglioOrdine) {
+    public Optional<Ordine> aggiungiDettaglioAdOrdine(Long ordineId, DettagliOrdineInputDTO dettagliOrdineDTO) {
+        // 1. Cerca l'ordine principale
         Optional<Ordine> ordineOpt = ordineRepository.findById(ordineId);
-
-        // Se CopiaFumetto non è stato impostato sul DettaglioOrdine in ingresso,
-        // o se il suo ID non è valido, dobbiamo recuperarlo.
-        // Assumiamo che l'ID della CopiaFumetto sia presente nell'oggetto dettaglioOrdine fornito.
-        if (dettaglioOrdine.getCopiaFumetto() == null || dettaglioOrdine.getCopiaFumetto().getCopiaFumettoId() == null) {
-            return Optional.empty(); // CopiaFumetto mancante o invalido nel dettaglio
+        if (ordineOpt.isEmpty()) {
+            return Optional.empty(); // Ordine non trovato
         }
+        Ordine ordine = ordineOpt.get();
 
-        Optional<CopiaFumetto> copiaFumettoOpt = copiaFumettoRepository.findById(dettaglioOrdine.getCopiaFumetto().getCopiaFumettoId());
-
-
-        if (ordineOpt.isPresent() && copiaFumettoOpt.isPresent()) {
-            Ordine ordine = ordineOpt.get();
-            CopiaFumetto copiaFumetto = copiaFumettoOpt.get();
-
-            dettaglioOrdine.setOrdine(ordine);          // Collega il dettaglio all'ordine
-            dettaglioOrdine.setCopiaFumetto(copiaFumetto); // Associa la CopiaFumetto gestita
-
-            // Aggiungi il dettaglio alla lista nell'ordine (per consistenza bidirezionale)
-            // Se la collezione è Lazy, questo la caricherà e poi aggiungerà.
-            ordine.getDettagliOrdini().add(dettaglioOrdine);
-
-            // Salva il DettaglioOrdine. A causa di `CascadeType.ALL` su Ordine.dettagliOrdini,
-            // il salvataggio dell'ordine dovrebbe persistere anche il dettaglio.
-            // Tuttavia, per chiarezza e certezza, puoi salvarlo esplicitamente.
-            dettagliOrdineRepository.save(dettaglioOrdine);
-
-            // Ricarica l'ordine per assicurarsi che la collezione di dettagli sia aggiornata,
-            // se si riscontrano problemi di deserializzazione successiva
-            // Oppure, semplicemente salva l'ordine per propagare le modifiche se necessario
-            // ordineRepository.save(ordine); // Potrebbe essere superfluo se @Transactional gestisce l'aggiornamento
-
-            // La query `findByUtenteIdWithDettagliOrdine` nel repository già usa un `LEFT JOIN FETCH`,
-            // quindi quando recuperi l'ordine in seguito, i dettagli dovrebbero essere presenti.
-
-            return Optional.of(ordine); // Restituisci l'ordine con il nuovo dettaglio associato
+        // 2. Cerca la copia del fumetto
+        Optional<CopiaFumetto> copiaFumettoOpt = copiaFumettoRepository.findById(dettagliOrdineDTO.getCopiaFumettoId());
+        if (copiaFumettoOpt.isEmpty()) {
+            return Optional.empty(); // Copia Fumetto non trovata
         }
-        return Optional.empty(); // Ordine o CopiaFumetto non trovati
+        CopiaFumetto copiaFumetto = copiaFumettoOpt.get();
+
+        // 3. Crea l'entità DettagliOrdine
+        DettagliOrdine nuoviDettagli = new DettagliOrdine();
+        nuoviDettagli.setQuantitaFumetti(dettagliOrdineDTO.getQuantitaFumetti());
+        nuoviDettagli.setCopiaFumetto(copiaFumetto); // Associa la copia del fumetto recuperata
+        nuoviDettagli.setOrdine(ordine);            // Associa l'ordine recuperato
+
+        // 4. Mantiene la coerenza bidirezionale
+        ordine.addDettagliOrdine(nuoviDettagli); // Questo aggiunge il dettaglio alla lista nell'ordine e imposta ordine.setDettagliOrdine
+
+        // 5. Salva il nuovo dettaglio (e Spring JPA salverà automaticamente anche l'ordine aggiornato per via della cascata)
+        dettagliOrdineRepository.save(nuoviDettagli);
+
+        // Potresti voler ricalcolare il prezzo totale dell'ordine qui
+        // ordine.setPrezzoFinale(calculateNewTotal(ordine));
+        // ordineRepository.save(ordine); // Salva l'ordine per aggiornare il prezzo finale, se implementato
+
+        return Optional.of(ordine); // Restituisce l'ordine aggiornato
     }
 }

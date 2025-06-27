@@ -110,6 +110,18 @@ public class Ordine {
         this.dettagliOrdini = dettagliOrdini;
     }
 
+    // --- Metodi Helper: ---
+
+    public void addDettagliOrdine(DettagliOrdine dettagliOrdine) {
+        dettagliOrdini.add(dettagliOrdine);
+        dettagliOrdine.setOrdine(this); // Importante: imposta il riferimento all'ordine nel dettaglio
+    }
+
+    public void removeDettagliOrdine(DettagliOrdine dettagliOrdine) {
+        dettagliOrdini.remove(dettagliOrdine);
+        dettagliOrdine.setOrdine(null); // Importante: rimuove il riferimento
+    }
+
     // --- equals(), hashCode(), toString() ---
 
     @Override

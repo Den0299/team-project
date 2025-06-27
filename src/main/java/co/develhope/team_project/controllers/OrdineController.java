@@ -1,5 +1,6 @@
 package co.develhope.team_project.controllers;
 
+import co.develhope.team_project.dtos.DettagliOrdineInputDTO;
 import co.develhope.team_project.entities.DettagliOrdine;
 import co.develhope.team_project.entities.Ordine;
 import co.develhope.team_project.entities.enums.StatoOrdineEnum;
@@ -151,29 +152,23 @@ public class OrdineController {
     }
 
     /**
-     * Aggiunge un nuovo dettaglio (es. un fumetto specifico con quantità) a un ordine esistente.
+     * Aggiunge un nuovo dettaglio a un ordine esistente.
      * POST /api/ordini/{ordineId}/dettagli
-     *
      * @param ordineId L'ID dell'ordine a cui aggiungere il dettaglio.
-     * @param dettaglioOrdine L'oggetto DettagliOrdine inviato nel corpo della richiesta.
-     * @return 200 OK con l'Ordine aggiornato (incluso il nuovo dettaglio), 404 NOT FOUND se ordine/copiaFumetto non esiste,
-     * o 400 BAD REQUEST per problemi di validazione.
+     * @param dettagliOrdineDTO Il DTO con i dati per il nuovo dettaglio (ID copia fumetto e quantità).
+     * @return 200 OK con l'Ordine aggiornato, o 404 NOT FOUND se l'ordine o la copia fumetto non esistono.
      */
-    @PostMapping(path = "/{ordineId}/dettagli", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/dettagli/{ordineId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Ordine> aggiungiDettaglioAdOrdine(
             @PathVariable Long ordineId,
-            @Valid @RequestBody DettagliOrdine dettaglioOrdine) { // Accetta l'entità DettagliOrdine direttamente
+            @Valid @RequestBody DettagliOrdineInputDTO dettagliOrdineDTO) { // <-- Ora riceve il DTO
 
-        Optional<Ordine> updatedOrdineOpt = ordineService.aggiungiDettaglioAdOrdine(ordineId, dettaglioOrdine);
+        Optional<Ordine> ordineAggiornatoOpt = ordineService.aggiungiDettaglioAdOrdine(ordineId, dettagliOrdineDTO);
 
-        if (updatedOrdineOpt.isPresent()) {
-            return new ResponseEntity<>(updatedOrdineOpt.get(), HttpStatus.OK);
+        if (ordineAggiornatoOpt.isPresent()) {
+            return new ResponseEntity<>(ordineAggiornatoOpt.get(), HttpStatus.OK); // O CREATED se preferisci per questo specifico endpoint
         } else {
-            // È utile capire se l'errore è dovuto a ordine non trovato o copiaFumetto non trovata.
-            // Il servizio restituisce Optional.empty() in entrambi i casi.
-            // Per un API più robusta, potresti voler gestire questi casi separatamente.
-            // Per ora, un generico 404.
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Ordine o CopiaFumetto non trovati
         }
     }
 }
