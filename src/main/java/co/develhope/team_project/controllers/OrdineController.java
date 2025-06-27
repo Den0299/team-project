@@ -1,7 +1,7 @@
 package co.develhope.team_project.controllers;
 
 import co.develhope.team_project.dtos.DettagliOrdineInputDTO;
-import co.develhope.team_project.entities.DettagliOrdine;
+import co.develhope.team_project.dtos.OrdineInputDTO;
 import co.develhope.team_project.entities.Ordine;
 import co.develhope.team_project.entities.enums.StatoOrdineEnum;
 import co.develhope.team_project.services.OrdineService;
@@ -77,20 +77,18 @@ public class OrdineController {
     }
 
     /**
-     * Crea un nuovo ordine per un utente specifico.
-     * POST /api/ordini/utente/{utenteId}
-     *
-     * @param utenteId L'ID dell'utente a cui associare l'ordine.
-     * @param ordine Il nuovo oggetto Ordine da salvare (ricevuto dal corpo della richiesta).
-     * @return 201 CREATED con l'Ordine creato, o 404 NOT FOUND se l'utente non esiste.
+     * Crea un nuovo ordine per un utente.
+     * POST /api/ordini/create-ordine/{utenteId}
+     * @param utenteId L'ID dell'utente che crea l'ordine.
+     * @param ordineInputDTO Il DTO con i dati di input per l'ordine (es. stato iniziale).
+     * @return 201 CREATED con l'ordine creato, o 404 NOT FOUND se l'utente non esiste.
      */
     @PostMapping(path = "/create-ordine/{utenteId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Ordine> creaOrdinePerUtente(
             @PathVariable Long utenteId,
-            @Valid @RequestBody Ordine ordine) { // Accetta l'entità Ordine direttamente
+            @Valid @RequestBody OrdineInputDTO ordineInputDTO) { // <-- Ora accetta il DTO
 
-        // La validazione dell'Ordine si baserà sulle annotazioni presenti nell'entità Ordine stessa.
-        Optional<Ordine> ordineCreatoOpt = ordineService.creaNuovoOrdine(utenteId, ordine);
+        Optional<Ordine> ordineCreatoOpt = ordineService.creaOrdinePerUtente(utenteId, ordineInputDTO);
 
         if (ordineCreatoOpt.isPresent()) {
             return new ResponseEntity<>(ordineCreatoOpt.get(), HttpStatus.CREATED);
