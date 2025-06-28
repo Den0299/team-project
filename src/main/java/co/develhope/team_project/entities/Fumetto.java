@@ -2,6 +2,7 @@ package co.develhope.team_project.entities;
 
 import co.develhope.team_project.entities.enums.CategoriaFumettoEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -13,6 +14,7 @@ import java.util.*;
 
 @Entity
 @Table(name = "fumetti")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Fumetto {
 
     // --- Attributi: ---

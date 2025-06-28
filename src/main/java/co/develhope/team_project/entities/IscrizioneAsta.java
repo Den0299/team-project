@@ -11,6 +11,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "iscrizioni_asta")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class IscrizioneAsta {
 
     @Id
@@ -22,13 +23,12 @@ public class IscrizioneAsta {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "asta_id", nullable = false) // Un'iscrizione deve sempre essere associata a un'asta
     @NotNull(message = "L'asta associata all'iscrizione non può essere nulla")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "iscrizioniAsta", "utenteMiglioreOfferta", "copiaFumetto"})
+    @JsonBackReference
     private Asta asta;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "utente_id", nullable = false) // Un'iscrizione deve sempre essere fatta da un utente
     @NotNull(message = "L'utente associato all'iscrizione non può essere nullo")
-    @JsonBackReference
     private Utente utente;
 
     public IscrizioneAsta() {

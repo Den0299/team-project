@@ -18,6 +18,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "utenti")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Utente {
 
     // --- Attributi ---:
@@ -83,7 +84,7 @@ public class Utente {
     private List<Ordine> ordini = new ArrayList<>();
 
     @OneToMany(mappedBy = "utenteMiglioreOfferta", fetch = FetchType.LAZY)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnore
     private List<Asta> asteVinte = new ArrayList<>();
 
     // --- Costruttori ---:
