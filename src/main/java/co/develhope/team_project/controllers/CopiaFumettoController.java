@@ -66,7 +66,7 @@ public class CopiaFumettoController {
                 .body("CopiaFumetto con ID '" + id + "' non trovata.");
     }
 
-    @PostMapping("/copia-venduta/{copiaId}")
+    @PutMapping("/copia-venduta/{copiaId}")
     public ResponseEntity<String> segnaCopiaComeVenduta(@PathVariable Long copiaId) {
         copiaFumettoService.segnaComeVenduta(copiaId);
 
