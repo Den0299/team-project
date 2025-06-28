@@ -57,6 +57,16 @@ public class DettagliOrdineService {
     public List<DettagliOrdine> getAllDettagliOrdini() {
         List<DettagliOrdine> dettagliOrdini = dettagliOrdineRepository.findAll();
 
+        // Forza l'inizializzazione dei riferimenti lazy
+        for (DettagliOrdine dettagli : dettagliOrdini) {
+            if (dettagli.getCopiaFumetto() != null) {
+                dettagli.getCopiaFumetto().getCopiaFumettoId();
+            }
+            if (dettagli.getOrdine() != null) {
+                dettagli.getOrdine().getOrdineId();
+            }
+        }
+
         return dettagliOrdini;
     }
 

@@ -1,5 +1,7 @@
 package co.develhope.team_project.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -8,6 +10,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "dettagli_ordine")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class DettagliOrdine {
 
     @Id
@@ -27,6 +30,7 @@ public class DettagliOrdine {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ordine_id")
     @NotNull(message = "L'ordine non può essere nullo per un dettaglio dell'ordine")
+    @JsonBackReference
     private Ordine ordine;
 
     public DettagliOrdine() {
