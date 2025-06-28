@@ -232,7 +232,8 @@ public class Utente {
         this.asteVinte = asteVinte;
     }
 
-    // --- Metodi Helper per le relazioni: ---
+    // --- Metodi Helper: ---
+
     public void addIscrizioneAsta(IscrizioneAsta iscrizione) {
         this.iscrizioniAsta.add(iscrizione);
         iscrizione.setUtente(this);

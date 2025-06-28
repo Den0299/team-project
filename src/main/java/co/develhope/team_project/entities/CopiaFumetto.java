@@ -33,7 +33,8 @@ public class CopiaFumetto {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fumetto_id", nullable = false) // Una copia deve sempre essere associata a un fumetto
-    @NotNull(message = "Il fumetto associato alla copia non può essere nullo")
+    //@NotNull(message = "Il fumetto associato alla copia non può essere nullo")
+    @JsonIgnore
     private Fumetto fumetto;
 
     @OneToMany(mappedBy = "copiaFumetto", fetch = FetchType.LAZY)
