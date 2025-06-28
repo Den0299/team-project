@@ -2,6 +2,7 @@ package co.develhope.team_project.entities;
 
 import co.develhope.team_project.entities.enums.PianoAbbonamentoEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "abbonamenti")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Abbonamento {
 
     @Id

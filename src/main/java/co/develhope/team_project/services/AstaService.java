@@ -1,8 +1,10 @@
 package co.develhope.team_project.services;
 
 import co.develhope.team_project.entities.Asta;
+import co.develhope.team_project.entities.CopiaFumetto;
 import co.develhope.team_project.entities.Utente;
 import co.develhope.team_project.repositories.AstaRepository;
+import co.develhope.team_project.repositories.CopiaFumettoRepository;
 import co.develhope.team_project.repositories.UtenteRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -22,10 +24,22 @@ public class AstaService {
     @Autowired
     private UtenteRepository utenteRepository;
 
-    public Asta createAsta(Asta asta) {
-        Asta nuovaAsta = astaRepository.save(asta);
+    @Autowired
+    private CopiaFumettoRepository copiaFumettoRepository;
 
-        return nuovaAsta;
+    public Asta createAsta(Asta asta) {
+        if (asta.getCopiaFumetto() == null || asta.getCopiaFumetto().getCopiaFumettoId() == null) {
+            throw new IllegalArgumentException("ID della copia fumetto mancante");
+        }
+
+        Long copiaFumettoId = asta.getCopiaFumetto().getCopiaFumettoId();
+
+        CopiaFumetto copiaFumetto = copiaFumettoRepository.findById(copiaFumettoId)
+                .orElseThrow(() -> new RuntimeException("Copia fumetto non trovata con ID: " + copiaFumettoId));
+
+        asta.setCopiaFumetto(copiaFumetto);
+
+        return astaRepository.save(asta);
     }
 
     public Optional<Asta> getAstaById(Long astaId) {

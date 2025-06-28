@@ -1,5 +1,8 @@
 package co.develhope.team_project.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -8,16 +11,12 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "dettagli_ordine")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class DettagliOrdine {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long dettagliOrdineId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "copia_fumetto_id")
-    @NotNull(message = "La copia del fumetto non può essere nulla per un dettaglio dell'ordine")
-    private CopiaFumetto copiaFumetto;
 
     @NotNull(message = "La quantità di fumetti non può essere nulla")
     @Min(value = 1, message = "La quantità di fumetti deve essere almeno 1")
@@ -25,8 +24,15 @@ public class DettagliOrdine {
     private Integer quantitaFumetti;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ordine_id")
+    @JoinColumn(name = "copia_fumetto_id", nullable = false)
+    @NotNull(message = "La copia del fumetto non può essere nulla per un dettaglio dell'ordine")
+    @JsonIgnore
+    private CopiaFumetto copiaFumetto;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ordine_id", nullable = false)
     @NotNull(message = "L'ordine non può essere nullo per un dettaglio dell'ordine")
+    @JsonBackReference
     private Ordine ordine;
 
     public DettagliOrdine() {

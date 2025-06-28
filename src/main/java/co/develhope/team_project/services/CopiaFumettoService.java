@@ -97,4 +97,25 @@ public class CopiaFumettoService {
         copia.setPrezzo(nuovoPrezzo);
         copiaFumettoRepository.save(copia);
     }
+
+    /**
+     * Crea una nuova copia di fumetto e la associa a un fumetto esistente.
+     * @param fumettoId L'ID del fumetto a cui associare la copia.
+     * @param copiaFumetto La copia del fumetto da salvare.
+     * @return Un Optional contenente la CopiaFumetto salvata se il fumetto esiste, altrimenti un Optional vuoto.
+     */
+    @Transactional
+    public Optional<CopiaFumetto> creaCopiaFumetto(Long fumettoId, CopiaFumetto copiaFumetto) {
+        Optional<Fumetto> fumettoOpt = fumettoRepository.findById(fumettoId);
+
+        if (fumettoOpt.isPresent()) {
+            Fumetto fumetto = fumettoOpt.get();
+            copiaFumetto.setFumetto(fumetto); // Associa la copia al fumetto
+            fumetto.addCopiaFumetto(copiaFumetto); // Mantiene la coerenza bidirezionale
+
+            CopiaFumetto copiaSalvata = copiaFumettoRepository.save(copiaFumetto);
+            return Optional.of(copiaSalvata);
+        }
+        return Optional.empty(); // Fumetto non trovato
+    }
 }

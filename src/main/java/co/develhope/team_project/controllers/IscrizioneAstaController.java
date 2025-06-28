@@ -57,13 +57,13 @@ public class IscrizioneAstaController {
                 .body("IscrizioneAsta con ID '" + id + "' non trovata.");
     }
 
-    @PostMapping("/{astaId}/iscrivi/{utenteId}")
+    @PostMapping("/iscrivi-utente-asta")
     public ResponseEntity<String> createIscrizioneUtenteAsta(
-            @PathVariable Long astaId,
-            @PathVariable Long utenteId) {
+            @RequestParam Long astaId,
+            @RequestParam Long utenteId) {
 
         iscrizioneAstaService.createIscrizioneUtenteAsta(utenteId, astaId);
-        return ResponseEntity.ok("Utente iscritto all'asta con successo.");
+        return ResponseEntity.ok("Utente con ID '" + utenteId + "' iscritto con successo all'asta con id '" + astaId + "'.");
     }
 
     @GetMapping("/verifica-iscrizione-utente")

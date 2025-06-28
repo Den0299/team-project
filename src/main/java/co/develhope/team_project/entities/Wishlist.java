@@ -3,6 +3,7 @@ package co.develhope.team_project.entities;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
@@ -12,6 +13,7 @@ import java.util.*;
 
 @Entity
 @Table(name = "wishlists")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Wishlist {
 
     // --- Attributi: ---

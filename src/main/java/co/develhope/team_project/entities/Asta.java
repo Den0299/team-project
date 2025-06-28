@@ -2,6 +2,8 @@ package co.develhope.team_project.entities;
 
 import co.develhope.team_project.entities.enums.StatoAstaEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Future;
@@ -16,6 +18,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "aste")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Asta {
 
     @Id
@@ -48,10 +51,10 @@ public class Asta {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "copia_fumetto_id")
-    @JsonIgnore
     private CopiaFumetto copiaFumetto;
 
     @OneToMany(mappedBy = "asta", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<IscrizioneAsta> iscrizioniAsta = new ArrayList<>();
 
 
