@@ -8,6 +8,10 @@ import co.develhope.team_project.entities.enums.PianoAbbonamentoEnum;
 import co.develhope.team_project.repositories.AbbonamentoRepository;
 import co.develhope.team_project.repositories.FumettoRepository;
 import co.develhope.team_project.repositories.UtenteRepository;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +23,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UtenteService {
+public class UtenteService implements UserDetailsService {
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private UtenteRepository utenteRepository;
@@ -254,5 +261,24 @@ public class UtenteService {
             }
         }
         return Optional.empty(); // Utente, fumetto o wishlist non trovati
+    }
+
+    public void registerUser(Utente utente) {
+        utente.setPassword(passwordEncoder.encode(utente.getPassword()));
+        utenteRepository.save(utente);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername (String email) throws UsernameNotFoundException {
+        Optional<Utente> utente = utenteRepository.findByEmail(email);
+        if (utente.isEmpty()) {
+            throw new UsernameNotFoundException("User not found");
+        }
+
+        return new org.springframework.security.core.userdetails.User(
+                utente.get().getEmail(),
+                utente.get().getPassword(),
+                new ArrayList<>()
+        );
     }
 }
