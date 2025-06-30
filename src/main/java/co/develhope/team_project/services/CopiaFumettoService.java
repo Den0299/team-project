@@ -124,4 +124,10 @@ public class CopiaFumettoService {
 
         return copieFumetto;
     }
+
+    public List<CopiaFumetto> findByStatoCopia(StatoCopiaFumettoEnum statoCopia) {
+        List<CopiaFumetto> copieFumetto = copiaFumettoRepository.findByStatoCopiaFumetto(statoCopia);
+
+        return copieFumetto;
+    }
 }

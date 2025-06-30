@@ -1,6 +1,7 @@
 package co.develhope.team_project.controllers;
 
 import co.develhope.team_project.entities.CopiaFumetto;
+import co.develhope.team_project.entities.enums.StatoCopiaFumettoEnum;
 import co.develhope.team_project.services.CopiaFumettoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,6 +117,13 @@ public class CopiaFumettoController {
     public ResponseEntity<List<CopiaFumetto>> getByPrezzoRange(@RequestParam BigDecimal prezzoMin,
                                                                @RequestParam BigDecimal prezzoMax) {
         List<CopiaFumetto> copieFumetto = copiaFumettoService.findByPrezzoRange(prezzoMin, prezzoMax);
+
+        return ResponseEntity.ok(copieFumetto);
+    }
+
+    @GetMapping("/filtro-stato-copia")
+    public ResponseEntity<List<CopiaFumetto>> getByStatoCopia(@RequestParam StatoCopiaFumettoEnum statoCopia) {
+        List<CopiaFumetto> copieFumetto = copiaFumettoService.findByStatoCopia(statoCopia);
 
         return ResponseEntity.ok(copieFumetto);
     }
