@@ -113,7 +113,8 @@ public class CopiaFumettoController {
     }
 
     @GetMapping("/filtro-prezzo")
-    public ResponseEntity<List<CopiaFumetto>> getByPrezzoRange(BigDecimal prezzoMin, BigDecimal prezzoMax) {
+    public ResponseEntity<List<CopiaFumetto>> getByPrezzoRange(@RequestParam BigDecimal prezzoMin,
+                                                               @RequestParam BigDecimal prezzoMax) {
         List<CopiaFumetto> copieFumetto = copiaFumettoService.findByPrezzoRange(prezzoMin, prezzoMax);
 
         return ResponseEntity.ok(copieFumetto);
