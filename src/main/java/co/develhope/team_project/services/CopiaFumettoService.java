@@ -118,4 +118,10 @@ public class CopiaFumettoService {
         }
         return Optional.empty(); // Fumetto non trovato
     }
+
+    public List<CopiaFumetto> findByPrezzoRange(BigDecimal prezzoMin, BigDecimal prezzoMax) {
+        List<CopiaFumetto> copieFumetto = copiaFumettoRepository.findByPrezzoBetween(prezzoMin, prezzoMax);
+
+        return copieFumetto;
+    }
 }

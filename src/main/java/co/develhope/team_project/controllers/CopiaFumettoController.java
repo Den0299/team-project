@@ -111,4 +111,11 @@ public class CopiaFumettoController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Fumetto non trovato
         }
     }
+
+    @GetMapping("/filtro-prezzo")
+    public ResponseEntity<List<CopiaFumetto>> getByPrezzoRange(BigDecimal prezzoMin, BigDecimal prezzoMax) {
+        List<CopiaFumetto> copieFumetto = copiaFumettoService.findByPrezzoRange(prezzoMin, prezzoMax);
+
+        return ResponseEntity.ok(copieFumetto);
+    }
 }
