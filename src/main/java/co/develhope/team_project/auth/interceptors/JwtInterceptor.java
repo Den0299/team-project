@@ -1,6 +1,6 @@
-package co.develhope.team_project.interceptors;
+package co.develhope.team_project.auth.interceptors;
 
-import co.develhope.team_project.services.JWTService;
+import co.develhope.team_project.auth.jwt.JWTService;
 import co.develhope.team_project.services.UtenteService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,4 +1,4 @@
-package co.develhope.team_project.configuration;
+package co.develhope.team_project.auth.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

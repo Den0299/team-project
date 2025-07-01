@@ -1,6 +1,6 @@
-package co.develhope.team_project.configuration;
+package co.develhope.team_project.auth.config;
 
-import co.develhope.team_project.interceptors.JwtInterceptor;
+import co.develhope.team_project.auth.interceptors.JwtInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;

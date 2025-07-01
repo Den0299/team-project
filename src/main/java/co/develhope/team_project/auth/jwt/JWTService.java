@@ -1,4 +1,4 @@
-package co.develhope.team_project.services;
+package co.develhope.team_project.auth.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -14,8 +14,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-
-import static java.security.KeyRep.Type.SECRET;
 
 @Service
 public class JWTService {
