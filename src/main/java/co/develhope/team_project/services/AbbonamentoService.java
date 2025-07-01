@@ -15,10 +15,13 @@ public class AbbonamentoService {
     private AbbonamentoRepository abbonamentoRepository;
 
     public Abbonamento createAbbonamento(Abbonamento abbonamento) {
-        Abbonamento nuovoAbbonamento = abbonamentoRepository.save(abbonamento);
+        // Verifica se esiste già un abbonamento con lo stesso piano
+        Optional<Abbonamento> esistente = abbonamentoRepository.findByPianoAbbonamento(abbonamento.getPianoAbbonamento());
+        if (esistente.isPresent()) {
+            throw new IllegalArgumentException("Esiste già un abbonamento per il piano: " + abbonamento.getPianoAbbonamento());
+        }
 
-        return nuovoAbbonamento;
-
+        return abbonamentoRepository.save(abbonamento);
     }
 
     public Optional<Abbonamento> getAbbonamentoById(Long abbonamentoId) {
