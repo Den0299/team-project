@@ -3,15 +3,14 @@ package co.develhope.team_project.auth.controller;
 import co.develhope.team_project.entities.Utente;
 import co.develhope.team_project.auth.service.JWTService;
 import co.develhope.team_project.services.UtenteService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -28,7 +27,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody Utente utente) {
-        utenteService.registerUser(utente);
+        utenteService.createUtente(utente);
         return ResponseEntity.ok("User registered successfully");
     }
 
@@ -44,5 +43,12 @@ public class AuthController {
         UserDetails userDetails = utenteService.loadUserByUsername(utente.getEmail());
         String jwt = jwtService.generateToken(userDetails);
         return ResponseEntity.ok(jwt);
+    }
+
+    @GetMapping("/verifica-login")
+    public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
+        return utenteService.getCurrentUserFromRequest(request)
+                .map(utente -> ResponseEntity.ok("Current user email: " + utente.getEmail()))
+                .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No authenticated user found."));
     }
 }
