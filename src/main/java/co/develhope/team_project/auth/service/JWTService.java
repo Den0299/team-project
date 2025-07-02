@@ -20,7 +20,7 @@ public class JWTService {
     private final String SECRET = "UnaChiaveMoltoSicuraEDecisamentePiùLungaDi32Char!";
     private final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
 
-    private final int EXPIRATION_TIME = 1000 * 60 * 60 * 10;
+    private final int EXPIRATION_TIME = 1000 * 60;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
