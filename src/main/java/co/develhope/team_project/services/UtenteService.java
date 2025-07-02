@@ -1,5 +1,6 @@
 package co.develhope.team_project.services;
 
+import co.develhope.team_project.auth.service.JWTService;
 import co.develhope.team_project.entities.Abbonamento;
 import co.develhope.team_project.entities.Utente;
 import co.develhope.team_project.entities.Fumetto;
@@ -8,6 +9,7 @@ import co.develhope.team_project.entities.enums.PianoAbbonamentoEnum;
 import co.develhope.team_project.repositories.AbbonamentoRepository;
 import co.develhope.team_project.repositories.FumettoRepository;
 import co.develhope.team_project.repositories.UtenteRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -36,6 +38,9 @@ public class UtenteService implements UserDetailsService {
 
     @Autowired
     private FumettoRepository fumettoRepository;
+
+    @Autowired
+    private JWTService jwtService;
 
     // crea un nuovo utente:
     public Utente createUtente(Utente utente) {
@@ -278,6 +283,29 @@ public class UtenteService implements UserDetailsService {
                 utente.get().getPassword(),
                 new ArrayList<>()
         );
+    }
+
+    public Optional<Utente> getCurrentUserFromRequest(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return Optional.empty();
+        }
+
+        String token = authHeader.substring(7); // Rimuove "Bearer "
+        try {
+            String email = jwtService.extractUsername(token); // usa extractUsername, che prende il subject
+
+            // Aggiunta: carica UserDetails e valida il token
+            UserDetails userDetails = loadUserByUsername(email);
+            if (!jwtService.validateToken(token, userDetails)) {
+                return Optional.empty(); // Token non valido o scaduto
+            }
+
+            return utenteRepository.findByEmail(email);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
     /*public void registerUser(Utente utente) {
