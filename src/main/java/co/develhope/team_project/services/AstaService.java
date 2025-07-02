@@ -5,6 +5,7 @@ import co.develhope.team_project.entities.CopiaFumetto;
 import co.develhope.team_project.entities.Utente;
 import co.develhope.team_project.repositories.AstaRepository;
 import co.develhope.team_project.repositories.CopiaFumettoRepository;
+import co.develhope.team_project.repositories.IscrizioneAstaRepository;
 import co.develhope.team_project.repositories.UtenteRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -26,6 +27,9 @@ public class AstaService {
 
     @Autowired
     private CopiaFumettoRepository copiaFumettoRepository;
+
+    @Autowired
+    private IscrizioneAstaRepository iscrizioneAstaRepository;
 
     public Asta createAsta(Asta asta) {
         if (asta.getCopiaFumetto() == null || asta.getCopiaFumetto().getCopiaFumettoId() == null) {
@@ -87,6 +91,11 @@ public class AstaService {
 
         Utente utente = utenteRepository.findById(utenteId)
                 .orElseThrow(() -> new EntityNotFoundException("Utente non trovato con ID: " + utenteId));
+
+        boolean iscritto = iscrizioneAstaRepository.existsByUtenteUtenteIdAndAstaAstaId(utenteId, astaId);
+        if (!iscritto) {
+            throw new IllegalStateException("L'utente non è iscritto all'asta.");
+        }
 
         BigDecimal offertaCorrente = asta.getOffertaCorrente();
         if (offertaCorrente == null) {
