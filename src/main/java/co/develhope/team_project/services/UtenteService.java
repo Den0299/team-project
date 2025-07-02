@@ -44,6 +44,7 @@ public class UtenteService implements UserDetailsService {
             throw new RuntimeException("Questa email è già stata utilizzata da un altro utente");
         }
         utente.setDataRegistrazione(LocalDate.now());
+        utente.setPassword(passwordEncoder.encode(utente.getPassword()));
         return utenteRepository.save(utente);
     }
 
@@ -263,10 +264,7 @@ public class UtenteService implements UserDetailsService {
         return Optional.empty(); // Utente, fumetto o wishlist non trovati
     }
 
-    public void registerUser(Utente utente) {
-        utente.setPassword(passwordEncoder.encode(utente.getPassword()));
-        utenteRepository.save(utente);
-    }
+
 
     @Override
     public UserDetails loadUserByUsername (String email) throws UsernameNotFoundException {
@@ -281,4 +279,9 @@ public class UtenteService implements UserDetailsService {
                 new ArrayList<>()
         );
     }
+
+    /*public void registerUser(Utente utente) {
+        utente.setPassword(passwordEncoder.encode(utente.getPassword()));
+        utenteRepository.save(utente);
+    }*/
 }
