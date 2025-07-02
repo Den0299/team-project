@@ -36,9 +36,9 @@ public class Asta {
     private LocalDate dataFine;
 
     @NotNull(message = "L'offerta corrente non può essere nulla")
-    @DecimalMin(value = "0.0", inclusive = false, message = "L'offerta corrente deve essere maggiore di zero")
+    // @DecimalMin(value = "0.0", inclusive = false, message = "L'offerta corrente deve essere maggiore di zero")
     @Column(nullable = false, precision = 10, scale = 2) // Esempio: 10 cifre totali, 2 dopo la virgola
-    private BigDecimal offertaCorrente;
+    private BigDecimal offertaCorrente = BigDecimal.ZERO;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "utente_migliore_offerta_id")
@@ -61,10 +61,9 @@ public class Asta {
     public Asta() {
     }
 
-    public Asta(LocalDate dataInizio, LocalDate dataFine, BigDecimal offertaCorrente, StatoAstaEnum statoAsta) {
+    public Asta(LocalDate dataInizio, LocalDate dataFine, StatoAstaEnum statoAsta) {
         this.dataInizio = dataInizio;
         this.dataFine = dataFine;
-        this.offertaCorrente = offertaCorrente;
         this.statoAsta = statoAsta;
     }
 
