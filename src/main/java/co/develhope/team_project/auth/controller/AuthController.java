@@ -1,7 +1,7 @@
-package co.develhope.team_project.controllers;
+package co.develhope.team_project.auth.controller;
 
 import co.develhope.team_project.entities.Utente;
-import co.develhope.team_project.auth.jwt.JWTService;
+import co.develhope.team_project.auth.service.JWTService;
 import co.develhope.team_project.services.UtenteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

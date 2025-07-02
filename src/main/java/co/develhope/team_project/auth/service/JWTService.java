@@ -1,4 +1,4 @@
-package co.develhope.team_project.auth.jwt;
+package co.develhope.team_project.auth.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
