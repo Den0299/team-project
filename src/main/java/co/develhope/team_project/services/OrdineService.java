@@ -2,6 +2,7 @@ package co.develhope.team_project.services;
 
 import co.develhope.team_project.dtos.DettagliOrdineInputDTO;
 import co.develhope.team_project.dtos.OrdineInputDTO;
+import co.develhope.team_project.dtos.OrdineCompletoInputDTO;
 import co.develhope.team_project.entities.CopiaFumetto;
 import co.develhope.team_project.entities.enums.StatoOrdineEnum;
 import co.develhope.team_project.entities.Ordine;
@@ -89,67 +90,6 @@ public class OrdineService {
     }
 
     /**
-     * Crea un nuovo ordine e lo associa a un utente specifico (deprecated).
-     *
-     * //@param utenteId L'ID dell'utente a cui associare l'ordine.
-     * //@param ordine Il nuovo oggetto Ordine da salvare.
-     * //@return Un Optional contenente l'Ordine salvato se l'utente esiste, altrimenti un Optional vuoto.
-     */
-    /*@Transactional
-    public Optional<Ordine> creaNuovoOrdine(Long utenteId, Ordine ordine) {
-        Optional<Utente> utenteOpt = utenteRepository.findById(utenteId);
-
-        if (utenteOpt.isPresent()) {
-            Utente utente = utenteOpt.get();
-
-            // Imposta la data dell'ordine al momento corrente se non specificata dall'input
-            if (ordine.getDataOrdine() == null) {
-                ordine.setDataOrdine(LocalDate.now());
-            }
-
-            // Imposta lo stato dell'ordine se non specificato (o se vuoi un default)
-            if (ordine.getStatoOrdine() == null) {
-                ordine.setStatoOrdine(StatoOrdineEnum.IN_CONSEGNA);
-            }
-
-            // Associa l'ordine all'utente
-            ordine.setUtente(utente); // Questo imposta la chiave esterna in Ordine
-
-            // Aggiungi l'ordine alla lista degli ordini dell'utente per consistenza bidirezionale in memoria
-            utente.addOrdine(ordine); // Usa il metodo helper di Utente
-
-            // Salva l'ordine.
-            // Dato che Ordine è il lato "Many" e non ha cascade per la persistenza su Utente,
-            // è opportuno salvare l'ordine direttamente tramite ordineRepository.
-            Ordine ordineSalvato = ordineRepository.save(ordine);
-
-            return Optional.of(ordineSalvato);
-        }
-        return Optional.empty(); // Utente non trovato
-    }*/
-
-    @Transactional
-    public Optional<Ordine> creaOrdinePerUtente(Long utenteId, OrdineInputDTO ordineInputDTO) { // <-- Accetta il DTO
-        Optional<Utente> utenteOpt = utenteRepository.findById(utenteId);
-
-        if (utenteOpt.isPresent()) {
-            Utente utente = utenteOpt.get();
-
-            Ordine nuovoOrdine = new Ordine();
-            nuovoOrdine.setUtente(utente);
-            nuovoOrdine.setDataOrdine(LocalDate.now()); // <-- Settato nel servizio
-            nuovoOrdine.setStatoOrdine(ordineInputDTO.getStatoOrdine()); // <-- Preso dal DTO
-            nuovoOrdine.setPrezzoFinale(BigDecimal.ZERO); // <-- Inizializzato nel servizio
-
-            utente.addOrdine(nuovoOrdine); // Se hai un metodo addOrdine in Utente per la relazione bidirezionale
-
-            Ordine ordineSalvato = ordineRepository.save(nuovoOrdine);
-            return Optional.of(ordineSalvato);
-        }
-        return Optional.empty();
-    }
-
-    /**
      * Recupera tutti gli ordini effettuati da un utente specifico.
      *
      * @param utenteId L'ID dell'utente di cui recuperare gli ordini.
@@ -194,80 +134,63 @@ public class OrdineService {
     }
 
     /**
-     * Aggiunge un nuovo dettaglio a un ordine esistente (deprecated).
+     * Crea un nuovo ordine per un utente, includendo tutti i dettagli dei fumetti selezionati.
+     * Calcola il prezzo finale dell'ordine in base ai dettagli e imposta lo stato iniziale.
      *
-     * @param ordineId L'ID dell'ordine a cui aggiungere il dettaglio.
-     * @param dettagliOrdineDTO Il DTO contenente i dati per il nuovo dettaglio (ID copia fumetto e quantità).
-     * @return Un Optional contenente l'Ordine aggiornato se l'ordine e la copia fumetto esistono, altrimenti un Optional vuoto.
+     * @param utenteId L'ID dell'utente che effettua l'ordine.
+     * @param ordineCompletoDTO Il DTO contenente solo la lista dei dettagli.
+     * @return Un Optional contenente l'Ordine completo e salvato, o Optional.empty() se l'utente
+     * o una delle copie fumetto non esiste.
      */
-    /*@Transactional
-    public Optional<Ordine> aggiungiDettaglioAdOrdine(Long ordineId, DettagliOrdineInputDTO dettagliOrdineDTO) {
-        // 1. Cerca l'ordine principale
-        Optional<Ordine> ordineOpt = ordineRepository.findById(ordineId);
-        if (ordineOpt.isEmpty()) {
-            return Optional.empty(); // Ordine non trovato
-        }
-        Ordine ordine = ordineOpt.get();
-
-        // 2. Cerca la copia del fumetto
-        Optional<CopiaFumetto> copiaFumettoOpt = copiaFumettoRepository.findById(dettagliOrdineDTO.getCopiaFumettoId());
-        if (copiaFumettoOpt.isEmpty()) {
-            return Optional.empty(); // Copia Fumetto non trovata
-        }
-        CopiaFumetto copiaFumetto = copiaFumettoOpt.get();
-
-        // 3. Crea l'entità DettagliOrdine
-        DettagliOrdine nuoviDettagli = new DettagliOrdine();
-        nuoviDettagli.setQuantitaFumetti(dettagliOrdineDTO.getQuantitaFumetti());
-        nuoviDettagli.setCopiaFumetto(copiaFumetto); // Associa la copia del fumetto recuperata
-        nuoviDettagli.setOrdine(ordine);            // Associa l'ordine recuperato
-
-        // 4. Mantiene la coerenza bidirezionale
-        ordine.addDettagliOrdine(nuoviDettagli); // Questo aggiunge il dettaglio alla lista nell'ordine e imposta ordine.setDettagliOrdine
-
-        // 5. Salva il nuovo dettaglio (e Spring JPA salverà automaticamente anche l'ordine aggiornato per via della cascata)
-        dettagliOrdineRepository.save(nuoviDettagli);
-
-        // Potresti voler ricalcolare il prezzo totale dell'ordine qui
-        // ordine.setPrezzoFinale(calculateNewTotal(ordine));
-        // ordineRepository.save(ordine); // Salva l'ordine per aggiornare il prezzo finale, se implementato
-
-        return Optional.of(ordine); // Restituisce l'ordine aggiornato
-    }*/
-
     @Transactional
-    public Optional<Ordine> aggiungiDettaglioAdOrdine(Long ordineId, DettagliOrdineInputDTO dettagliOrdineDTO) {
-        Optional<Ordine> ordineOpt = ordineRepository.findById(ordineId);
-        if (ordineOpt.isEmpty()) {
-            return Optional.empty();
+    public Optional<Ordine> effettuaOrdine(Long utenteId, OrdineCompletoInputDTO ordineCompletoDTO) {
+        Optional<Utente> utenteOpt = utenteRepository.findById(utenteId);
+        if (utenteOpt.isEmpty()) {
+            return Optional.empty(); // Utente non trovato
         }
-        Ordine ordine = ordineOpt.get();
+        Utente utente = utenteOpt.get();
 
-        Optional<CopiaFumetto> copiaFumettoOpt = copiaFumettoRepository.findById(dettagliOrdineDTO.getCopiaFumettoId());
-        if (copiaFumettoOpt.isEmpty()) {
-            return Optional.empty();
+        // 1. Crea l'Ordine base
+        Ordine nuovoOrdine = new Ordine();
+        nuovoOrdine.setUtente(utente);
+        nuovoOrdine.setDataOrdine(LocalDate.now()); // Data impostata dal server
+        nuovoOrdine.setStatoOrdine(StatoOrdineEnum.IN_ELABORAZIONE); // <-- STATO IMPOSTATO QUI DAL SERVER
+        nuovoOrdine.setPrezzoFinale(BigDecimal.ZERO); // Inizializza a zero prima di calcolare
+
+        // Questo è importante per mantenere la coerenza bidirezionale con l'utente
+        utente.addOrdine(nuovoOrdine);
+
+        // 2. Aggiungi i DettagliOrdine e calcola il prezzo finale
+        BigDecimal prezzoTotaleOrdine = BigDecimal.ZERO;
+
+        for (DettagliOrdineInputDTO dettaglioDTO : ordineCompletoDTO.getDettagli()) {
+            Optional<CopiaFumetto> copiaFumettoOpt = copiaFumettoRepository.findById(dettaglioDTO.getCopiaFumettoId());
+            if (copiaFumettoOpt.isEmpty()) {
+                // Se una copia fumetto non esiste, si annulla l'intero ordine.
+                return Optional.empty();
+            }
+            CopiaFumetto copiaFumetto = copiaFumettoOpt.get();
+
+            DettagliOrdine nuovoDettaglio = new DettagliOrdine();
+            nuovoDettaglio.setQuantitaFumetti(dettaglioDTO.getQuantitaFumetti());
+            nuovoDettaglio.setCopiaFumetto(copiaFumetto);
+            nuovoDettaglio.setOrdine(nuovoOrdine); // Collega al nuovo ordine
+
+            // Mantiene la coerenza bidirezionale tra Ordine e DettagliOrdine
+            nuovoOrdine.addDettagliOrdine(nuovoDettaglio);
+
+            // Calcola il costo di questo dettaglio e aggiungilo al totale dell'ordine
+            BigDecimal costoDettaglio = copiaFumetto.getPrezzo().multiply(BigDecimal.valueOf(nuovoDettaglio.getQuantitaFumetti()));
+            prezzoTotaleOrdine = prezzoTotaleOrdine.add(costoDettaglio);
         }
-        CopiaFumetto copiaFumetto = copiaFumettoOpt.get();
 
-        // Verifica se il dettaglio esiste già e aggiorna la quantità, o creane uno nuovo
-        // Per semplicità ora, creiamo sempre un nuovo dettaglio.
-        // In un caso reale, potresti voler cercare se un DettagliOrdine con la stessa copiaFumetto esiste già
-        // per questo ordine e, in tal caso, aggiornare solo la quantità e il prezzo.
+        // 3. Imposta il prezzo finale calcolato sull'ordine
+        nuovoOrdine.setPrezzoFinale(prezzoTotaleOrdine);
 
-        DettagliOrdine nuoviDettagli = new DettagliOrdine();
-        nuoviDettagli.setQuantitaFumetti(dettagliOrdineDTO.getQuantitaFumetti());
-        nuoviDettagli.setCopiaFumetto(copiaFumetto);
-        nuoviDettagli.setOrdine(ordine);
+        // 4. Salva l'Ordine. Grazie a `cascade = CascadeType.ALL` su `dettagliOrdini` in Ordine,
+        // tutti i DettagliOrdine associati verranno salvati automaticamente.
+        Ordine ordineSalvato = ordineRepository.save(nuovoOrdine);
 
-        ordine.addDettagliOrdine(nuoviDettagli); // Questo metodo che abbiamo appena aggiunto gestisce la bidirezionalità
-
-        dettagliOrdineRepository.save(nuoviDettagli); // Salva il nuovo dettaglio
-
-        // --- CALCOLA IL NUOVO PREZZO FINALE DELL'ORDINE ---
-        BigDecimal costoDettaglio = copiaFumetto.getPrezzo().multiply(BigDecimal.valueOf(nuoviDettagli.getQuantitaFumetti()));
-        ordine.setPrezzoFinale(ordine.getPrezzoFinale().add(costoDettaglio)); // Aggiunge il costo del nuovo dettaglio
-
-        // Salva l'ordine aggiornato per persistere il nuovo prezzo finale
-        return Optional.of(ordineRepository.save(ordine));
+        return Optional.of(ordineSalvato);
     }
 }
