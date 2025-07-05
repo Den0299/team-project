@@ -3,6 +3,7 @@ package co.develhope.team_project.services;
 import co.develhope.team_project.entities.Asta;
 import co.develhope.team_project.entities.IscrizioneAsta;
 import co.develhope.team_project.entities.Utente;
+import co.develhope.team_project.entities.enums.StatoAstaEnum;
 import co.develhope.team_project.repositories.AstaRepository;
 import co.develhope.team_project.repositories.IscrizioneAstaRepository;
 import co.develhope.team_project.repositories.UtenteRepository;
@@ -11,6 +12,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +46,7 @@ public class IscrizioneAstaService {
 
         if (optionalIscrizioneAsta.isPresent()) {
 
-            optionalIscrizioneAsta.get().setDataIscrizione(updatedIscrizioneAsta.getDataIscrizione());
+            optionalIscrizioneAsta.get().setOfferta(updatedIscrizioneAsta.getOfferta());
 
             IscrizioneAsta savedIscrizioneAsta = iscrizioneAstaRepository.save(optionalIscrizioneAsta.get());
             return Optional.of(savedIscrizioneAsta);
@@ -62,26 +64,49 @@ public class IscrizioneAstaService {
         return Optional.empty();
     }
 
-    // Iscrive un utente a un’asta se non è già iscritto
     @Transactional
-    public void createIscrizioneUtenteAsta(Long utenteId, Long astaId) {
+    public void faiOfferta(Long utenteId, Long astaId, BigDecimal importo) {
         Utente utente = utenteRepository.findById(utenteId)
                 .orElseThrow(() -> new EntityNotFoundException("Utente non trovato con ID: " + utenteId));
 
         Asta asta = astaRepository.findById(astaId)
                 .orElseThrow(() -> new EntityNotFoundException("Asta non trovata con ID: " + astaId));
 
-        boolean giaIscritto = iscrizioneAstaRepository.existsByUtenteUtenteIdAndAstaAstaId(utenteId, astaId);
-        if (giaIscritto) {
-            throw new IllegalStateException("Utente già iscritto a questa asta");
+        // Verifica che l’asta sia attiva (facoltativo: puoi anche controllare le date)
+        if (asta.getDataFine().isBefore(LocalDate.now())) {
+            throw new IllegalStateException("L'asta è terminata.");
         }
 
-        IscrizioneAsta iscrizione = new IscrizioneAsta();
-        iscrizione.setUtente(utente);
-        iscrizione.setAsta(asta);
-        iscrizione.setDataIscrizione(LocalDate.now());
+        if (importo.compareTo(asta.getOffertaCorrente()) <= 0) {
+            throw new IllegalArgumentException("L'offerta deve essere maggiore dell'offerta corrente.");
+        }
+
+        // Cerca se l'utente ha già fatto un'offerta
+        Optional<IscrizioneAsta> iscrizioneOptional =
+                iscrizioneAstaRepository.findByUtenteUtenteIdAndAstaAstaId(utenteId, astaId);
+
+        IscrizioneAsta iscrizione;
+        if (iscrizioneOptional.isPresent()) {
+            iscrizione = iscrizioneOptional.get();
+            iscrizione.setOfferta(importo); // aggiorna offerta
+        } else {
+            iscrizione = new IscrizioneAsta();
+            iscrizione.setUtente(utente);
+            iscrizione.setAsta(asta);
+            iscrizione.setOfferta(importo); // prima offerta
+        }
+
+        // Se l'asta è NON_INIZIATA, passa a IN_CORSO
+        if (asta.getStatoAsta() == StatoAstaEnum.NON_INIZIATA) {
+            asta.setStatoAsta(StatoAstaEnum.IN_CORSO);
+        }
+
+        // Aggiorna l’offerta corrente e l’utente con la migliore offerta
+        asta.setOffertaCorrente(importo);
+        asta.setUtenteMiglioreOfferta(utente);
 
         iscrizioneAstaRepository.save(iscrizione);
+        astaRepository.save(asta);
     }
 
     // Verifica se un utente è già iscritto a una specifica asta
