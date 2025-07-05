@@ -1,7 +1,6 @@
 package co.develhope.team_project.controllers;
 
-import co.develhope.team_project.dtos.DettagliOrdineInputDTO;
-import co.develhope.team_project.dtos.OrdineInputDTO;
+import co.develhope.team_project.dtos.OrdineCompletoInputDTO;
 import co.develhope.team_project.entities.Ordine;
 import co.develhope.team_project.entities.enums.StatoOrdineEnum;
 import co.develhope.team_project.services.OrdineService;
@@ -77,27 +76,6 @@ public class OrdineController {
     }
 
     /**
-     * Crea un nuovo ordine per un utente.
-     * POST /api/ordini/create-ordine/{utenteId}
-     * @param utenteId L'ID dell'utente che crea l'ordine.
-     * @param ordineInputDTO Il DTO con i dati di input per l'ordine (es. stato iniziale).
-     * @return 201 CREATED con l'ordine creato, o 404 NOT FOUND se l'utente non esiste.
-     */
-    @PostMapping(path = "/create-ordine/{utenteId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Ordine> creaOrdinePerUtente(
-            @PathVariable Long utenteId,
-            @Valid @RequestBody OrdineInputDTO ordineInputDTO) { // <-- Ora accetta il DTO
-
-        Optional<Ordine> ordineCreatoOpt = ordineService.creaOrdinePerUtente(utenteId, ordineInputDTO);
-
-        if (ordineCreatoOpt.isPresent()) {
-            return new ResponseEntity<>(ordineCreatoOpt.get(), HttpStatus.CREATED);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Utente non trovato
-        }
-    }
-
-    /**
      * Recupera tutti gli ordini di un utente specifico.
      * GET /api/ordini/utente/{utenteId}
      *
@@ -150,23 +128,23 @@ public class OrdineController {
     }
 
     /**
-     * Aggiunge un nuovo dettaglio a un ordine esistente.
-     * POST /api/ordini/{ordineId}/dettagli
-     * @param ordineId L'ID dell'ordine a cui aggiungere il dettaglio.
-     * @param dettagliOrdineDTO Il DTO con i dati per il nuovo dettaglio (ID copia fumetto e quantità).
-     * @return 200 OK con l'Ordine aggiornato, o 404 NOT FOUND se l'ordine o la copia fumetto non esistono.
+     * Permette a un utente di effettuare un ordine completo con i dettagli dei fumetti.
+     * POST /api/ordini/{utenteId}/effettua-ordine
+     * @param utenteId L'ID dell'utente che effettua l'ordine.
+     * @param ordineCompletoDTO Il DTO contenente solo la lista dei dettagli.
+     * @return 201 CREATED con l'ordine completo creato, o 404 NOT FOUND se l'utente o un fumetto non esiste.
      */
-    @PostMapping(path = "/dettagli/{ordineId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Ordine> aggiungiDettaglioAdOrdine(
-            @PathVariable Long ordineId,
-            @Valid @RequestBody DettagliOrdineInputDTO dettagliOrdineDTO) { // <-- Ora riceve il DTO
+    @PostMapping(path = "/effettua-ordine/{utenteId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Ordine> effettuaOrdine(
+            @PathVariable Long utenteId,
+            @Valid @RequestBody OrdineCompletoInputDTO ordineCompletoDTO) { // Il DTO ora non contiene statoOrdine
 
-        Optional<Ordine> ordineAggiornatoOpt = ordineService.aggiungiDettaglioAdOrdine(ordineId, dettagliOrdineDTO);
+        Optional<Ordine> ordineCreatoOpt = ordineService.effettuaOrdine(utenteId, ordineCompletoDTO);
 
-        if (ordineAggiornatoOpt.isPresent()) {
-            return new ResponseEntity<>(ordineAggiornatoOpt.get(), HttpStatus.OK); // O CREATED se preferisci per questo specifico endpoint
+        if (ordineCreatoOpt.isPresent()) {
+            return new ResponseEntity<>(ordineCreatoOpt.get(), HttpStatus.CREATED);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Ordine o CopiaFumetto non trovati
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Utente o una CopiaFumetto non trovati
         }
     }
 }

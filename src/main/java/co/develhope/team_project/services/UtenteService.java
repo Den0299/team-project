@@ -1,5 +1,6 @@
 package co.develhope.team_project.services;
 
+import co.develhope.team_project.auth.service.JWTService;
 import co.develhope.team_project.entities.Abbonamento;
 import co.develhope.team_project.entities.Utente;
 import co.develhope.team_project.entities.Fumetto;
@@ -8,6 +9,11 @@ import co.develhope.team_project.entities.enums.PianoAbbonamentoEnum;
 import co.develhope.team_project.repositories.AbbonamentoRepository;
 import co.develhope.team_project.repositories.FumettoRepository;
 import co.develhope.team_project.repositories.UtenteRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +25,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UtenteService {
+public class UtenteService implements UserDetailsService {
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private UtenteRepository utenteRepository;
@@ -30,6 +39,9 @@ public class UtenteService {
     @Autowired
     private FumettoRepository fumettoRepository;
 
+    @Autowired
+    private JWTService jwtService;
+
     // crea un nuovo utente:
     public Utente createUtente(Utente utente) {
         Optional<Utente> existingUser = utenteRepository.findByEmail(utente.getEmail());
@@ -37,6 +49,7 @@ public class UtenteService {
             throw new RuntimeException("Questa email è già stata utilizzata da un altro utente");
         }
         utente.setDataRegistrazione(LocalDate.now());
+        utente.setPassword(passwordEncoder.encode(utente.getPassword()));
         return utenteRepository.save(utente);
     }
 
@@ -255,4 +268,48 @@ public class UtenteService {
         }
         return Optional.empty(); // Utente, fumetto o wishlist non trovati
     }
+
+
+
+    @Override
+    public UserDetails loadUserByUsername (String email) throws UsernameNotFoundException {
+        Optional<Utente> utente = utenteRepository.findByEmail(email);
+        if (utente.isEmpty()) {
+            throw new UsernameNotFoundException("User not found");
+        }
+
+        return new org.springframework.security.core.userdetails.User(
+                utente.get().getEmail(),
+                utente.get().getPassword(),
+                new ArrayList<>()
+        );
+    }
+
+    public Optional<Utente> getCurrentUserFromRequest(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return Optional.empty();
+        }
+
+        String token = authHeader.substring(7); // Rimuove "Bearer "
+        try {
+            String email = jwtService.extractUsername(token); // usa extractUsername, che prende il subject
+
+            // Aggiunta: carica UserDetails e valida il token
+            UserDetails userDetails = loadUserByUsername(email);
+            if (!jwtService.validateToken(token, userDetails)) {
+                return Optional.empty(); // Token non valido o scaduto
+            }
+
+            return utenteRepository.findByEmail(email);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    /*public void registerUser(Utente utente) {
+        utente.setPassword(passwordEncoder.encode(utente.getPassword()));
+        utenteRepository.save(utente);
+    }*/
 }

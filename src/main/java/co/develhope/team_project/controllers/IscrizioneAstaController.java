@@ -2,16 +2,18 @@ package co.develhope.team_project.controllers;
 
 import co.develhope.team_project.entities.IscrizioneAsta;
 import co.develhope.team_project.services.IscrizioneAstaService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/iscrizioniAsta")
+@RequestMapping("/api/offerte")
 public class IscrizioneAstaController {
 
     @Autowired
@@ -57,13 +59,22 @@ public class IscrizioneAstaController {
                 .body("IscrizioneAsta con ID '" + id + "' non trovata.");
     }
 
-    @PostMapping("/iscrivi-utente-asta")
-    public ResponseEntity<String> createIscrizioneUtenteAsta(
+    @PostMapping("/create-offerta")
+    public ResponseEntity<String> faiOfferta(
+            @RequestParam Long utenteId,
             @RequestParam Long astaId,
-            @RequestParam Long utenteId) {
-
-        iscrizioneAstaService.createIscrizioneUtenteAsta(utenteId, astaId);
-        return ResponseEntity.ok("Utente con ID '" + utenteId + "' iscritto con successo all'asta con id '" + astaId + "'.");
+            @RequestParam BigDecimal importo
+    ) {
+        try {
+            iscrizioneAstaService.faiOfferta(utenteId, astaId, importo);
+            return ResponseEntity.ok("Offerta registrata con successo.");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore imprevisto: " + e.getMessage());
+        }
     }
 
     @GetMapping("/verifica-iscrizione-utente")

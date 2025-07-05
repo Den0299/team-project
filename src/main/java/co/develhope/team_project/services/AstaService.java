@@ -2,16 +2,16 @@ package co.develhope.team_project.services;
 
 import co.develhope.team_project.entities.Asta;
 import co.develhope.team_project.entities.CopiaFumetto;
-import co.develhope.team_project.entities.Utente;
+import co.develhope.team_project.entities.enums.StatoAstaEnum;
 import co.develhope.team_project.repositories.AstaRepository;
 import co.develhope.team_project.repositories.CopiaFumettoRepository;
+import co.develhope.team_project.repositories.IscrizioneAstaRepository;
 import co.develhope.team_project.repositories.UtenteRepository;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +27,9 @@ public class AstaService {
     @Autowired
     private CopiaFumettoRepository copiaFumettoRepository;
 
+    @Autowired
+    private IscrizioneAstaRepository iscrizioneAstaRepository;
+
     public Asta createAsta(Asta asta) {
         if (asta.getCopiaFumetto() == null || asta.getCopiaFumetto().getCopiaFumettoId() == null) {
             throw new IllegalArgumentException("ID della copia fumetto mancante");
@@ -37,10 +40,28 @@ public class AstaService {
         CopiaFumetto copiaFumetto = copiaFumettoRepository.findById(copiaFumettoId)
                 .orElseThrow(() -> new RuntimeException("Copia fumetto non trovata con ID: " + copiaFumettoId));
 
+        // Imposta il riferimento alla copia fumetto
         asta.setCopiaFumetto(copiaFumetto);
+
+        // Determina lo stato iniziale in base alla data corrente
+        LocalDate oggi = LocalDate.now();
+
+        if (oggi.isBefore(asta.getDataInizio())) {
+            asta.setStatoAsta(StatoAstaEnum.NON_INIZIATA);
+        } else if (!oggi.isAfter(asta.getDataFine())) {
+            asta.setStatoAsta(StatoAstaEnum.IN_CORSO);
+        } else {
+            asta.setStatoAsta(StatoAstaEnum.CONCLUSA);
+        }
+
+        // Offerta corrente iniziale impostata a zero se null
+        if (asta.getOffertaCorrente() == null) {
+            asta.setOffertaCorrente(BigDecimal.ZERO);
+        }
 
         return astaRepository.save(asta);
     }
+
 
     public Optional<Asta> getAstaById(Long astaId) {
         Optional<Asta> optionalAsta = astaRepository.findById(astaId);
@@ -79,32 +100,4 @@ public class AstaService {
         }
         return Optional.empty();
     }
-
-    @Transactional
-    public void faiOfferta(Long utenteId, Long astaId, BigDecimal importo) {
-        Asta asta = astaRepository.findById(astaId)
-                .orElseThrow(() -> new EntityNotFoundException("Asta non trovata con ID: " + astaId));
-
-        Utente utente = utenteRepository.findById(utenteId)
-                .orElseThrow(() -> new EntityNotFoundException("Utente non trovato con ID: " + utenteId));
-
-        BigDecimal offertaCorrente = asta.getOffertaCorrente();
-        if (offertaCorrente == null) {
-            offertaCorrente = BigDecimal.ZERO;
-        }
-
-        System.out.println("Offerta corrente: " + offertaCorrente);
-        System.out.println("Offerta proposta: " + importo);
-
-        if (importo.compareTo(offertaCorrente) <= 0) {
-            throw new IllegalArgumentException("L'offerta deve essere maggiore dell'offerta corrente.");
-        }
-
-        // Aggiorna l'offerta corrente e l'utente migliore offerente
-        asta.setOffertaCorrente(importo);
-        asta.setUtenteMiglioreOfferta(utente);
-
-        astaRepository.save(asta);
-    }
-
 }

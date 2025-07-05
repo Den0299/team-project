@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,16 +61,6 @@ public class AstaController {
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body("Asta con ID '" + id + "' non trovata.");
-    }
-
-    @PostMapping("/offerta")
-    public ResponseEntity<String> faiOfferta(
-            @RequestParam Long utenteId,
-            @RequestParam Long astaId,
-            @RequestParam BigDecimal importo) {
-
-        astaService.faiOfferta(utenteId, astaId, importo);
-        return ResponseEntity.ok("Offerta effettuata con successo.");
     }
 
 }
