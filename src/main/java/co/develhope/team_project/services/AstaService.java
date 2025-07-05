@@ -2,17 +2,14 @@ package co.develhope.team_project.services;
 
 import co.develhope.team_project.entities.Asta;
 import co.develhope.team_project.entities.CopiaFumetto;
-import co.develhope.team_project.entities.Utente;
+import co.develhope.team_project.entities.enums.StatoAstaEnum;
 import co.develhope.team_project.repositories.AstaRepository;
 import co.develhope.team_project.repositories.CopiaFumettoRepository;
 import co.develhope.team_project.repositories.IscrizioneAstaRepository;
 import co.develhope.team_project.repositories.UtenteRepository;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,6 +39,7 @@ public class AstaService {
                 .orElseThrow(() -> new RuntimeException("Copia fumetto non trovata con ID: " + copiaFumettoId));
 
         asta.setCopiaFumetto(copiaFumetto);
+        asta.setStatoAsta(StatoAstaEnum.NON_INIZIATA); // valore iniziale server-side
 
         return astaRepository.save(asta);
     }
@@ -83,37 +81,4 @@ public class AstaService {
         }
         return Optional.empty();
     }
-
-    @Transactional
-    public void faiOfferta(Long utenteId, Long astaId, BigDecimal importo) {
-        Asta asta = astaRepository.findById(astaId)
-                .orElseThrow(() -> new EntityNotFoundException("Asta non trovata con ID: " + astaId));
-
-        Utente utente = utenteRepository.findById(utenteId)
-                .orElseThrow(() -> new EntityNotFoundException("Utente non trovato con ID: " + utenteId));
-
-        boolean iscritto = iscrizioneAstaRepository.existsByUtenteUtenteIdAndAstaAstaId(utenteId, astaId);
-        if (!iscritto) {
-            throw new IllegalStateException("L'utente non è iscritto all'asta.");
-        }
-
-        BigDecimal offertaCorrente = asta.getOffertaCorrente();
-        if (offertaCorrente == null) {
-            offertaCorrente = BigDecimal.ZERO;
-        }
-
-        System.out.println("Offerta corrente: " + offertaCorrente);
-        System.out.println("Offerta proposta: " + importo);
-
-        if (importo.compareTo(offertaCorrente) <= 0) {
-            throw new IllegalArgumentException("L'offerta deve essere maggiore dell'offerta corrente.");
-        }
-
-        // Aggiorna l'offerta corrente e l'utente migliore offerente
-        asta.setOffertaCorrente(importo);
-        asta.setUtenteMiglioreOfferta(utente);
-
-        astaRepository.save(asta);
-    }
-
 }
