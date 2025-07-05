@@ -1,12 +1,12 @@
 package co.develhope.team_project.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.util.Objects;
 
 @Entity
@@ -18,7 +18,10 @@ public class IscrizioneAsta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDate dataIscrizione;
+    @NotNull(message = "L'importo dell'offerta non può essere nullo")
+    @DecimalMin(value = "0.01", inclusive = true, message = "L'offerta deve essere maggiore di zero")
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal offerta;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "asta_id", nullable = false) // Un'iscrizione deve sempre essere associata a un'asta
@@ -34,8 +37,8 @@ public class IscrizioneAsta {
     public IscrizioneAsta() {
     }
 
-    public IscrizioneAsta(LocalDate dataIscrizione) {
-        this.dataIscrizione = dataIscrizione;
+    public IscrizioneAsta(BigDecimal offerta) {
+        this.offerta = offerta;
     }
 
     public Long getId() {
@@ -46,12 +49,12 @@ public class IscrizioneAsta {
         this.id = id;
     }
 
-    public LocalDate getDataIscrizione() {
-        return dataIscrizione;
+    public BigDecimal getOfferta() {
+        return offerta;
     }
 
-    public void setDataIscrizione(LocalDate dataIscrizione) {
-        this.dataIscrizione = dataIscrizione;
+    public void setOfferta(BigDecimal offerta) {
+        this.offerta = offerta;
     }
 
     public Asta getAsta() {
@@ -86,7 +89,7 @@ public class IscrizioneAsta {
     public String toString() {
         return "IscrizioneAsta{" +
                 "id=" + id +
-                ", dataIscrizione=" + dataIscrizione +
+                ", offerta=" + offerta +
                 ", asta=" + asta +
                 ", utente=" + utente +
                 '}';
