@@ -10,6 +10,8 @@ import co.develhope.team_project.repositories.UtenteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,11 +40,28 @@ public class AstaService {
         CopiaFumetto copiaFumetto = copiaFumettoRepository.findById(copiaFumettoId)
                 .orElseThrow(() -> new RuntimeException("Copia fumetto non trovata con ID: " + copiaFumettoId));
 
+        // Imposta il riferimento alla copia fumetto
         asta.setCopiaFumetto(copiaFumetto);
-        asta.setStatoAsta(StatoAstaEnum.NON_INIZIATA); // valore iniziale server-side
+
+        // Determina lo stato iniziale in base alla data corrente
+        LocalDate oggi = LocalDate.now();
+
+        if (oggi.isBefore(asta.getDataInizio())) {
+            asta.setStatoAsta(StatoAstaEnum.NON_INIZIATA);
+        } else if (!oggi.isAfter(asta.getDataFine())) {
+            asta.setStatoAsta(StatoAstaEnum.IN_CORSO);
+        } else {
+            asta.setStatoAsta(StatoAstaEnum.CONCLUSA);
+        }
+
+        // Offerta corrente iniziale impostata a zero se null
+        if (asta.getOffertaCorrente() == null) {
+            asta.setOffertaCorrente(BigDecimal.ZERO);
+        }
 
         return astaRepository.save(asta);
     }
+
 
     public Optional<Asta> getAstaById(Long astaId) {
         Optional<Asta> optionalAsta = astaRepository.findById(astaId);
