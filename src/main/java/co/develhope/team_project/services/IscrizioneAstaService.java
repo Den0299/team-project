@@ -96,11 +96,6 @@ public class IscrizioneAstaService {
             iscrizione.setOfferta(importo); // prima offerta
         }
 
-        // Se l'asta è NON_INIZIATA, passa a IN_CORSO
-        if (asta.getStatoAsta() == StatoAstaEnum.NON_INIZIATA) {
-            asta.setStatoAsta(StatoAstaEnum.IN_CORSO);
-        }
-
         // Aggiorna l’offerta corrente e l’utente con la migliore offerta
         asta.setOffertaCorrente(importo);
         asta.setUtenteMiglioreOfferta(utente);
