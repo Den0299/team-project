@@ -21,11 +21,25 @@ public class CopiaFumettoController {
     @Autowired
     private CopiaFumettoService copiaFumettoService;
 
-    @PostMapping("/create")
-    public ResponseEntity<CopiaFumetto> createCopiaFumetto(@RequestBody CopiaFumetto copiaFumetto) {
-        CopiaFumetto createdCopiaFumetto = copiaFumettoService.createCopiaFumetto(copiaFumetto);
+    /**
+     * Crea una nuova copia di fumetto associata a un fumetto esistente.
+     * POST /api/copie-fumetto/fumetto/{fumettoId}
+     * @param fumettoId L'ID del fumetto a cui associare la copia.
+     * @param copiaFumetto La copia del fumetto da creare.
+     * @return 201 CREATED con la copia del fumetto, o 404 NOT FOUND se il fumetto non esiste.
+     */
+    @PostMapping(path = "/create-copia-fumetto/{fumettoId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CopiaFumetto> createCopiaFumetto(
+            @PathVariable Long fumettoId,
+            @Valid @RequestBody CopiaFumetto copiaFumetto) {
 
-        return new ResponseEntity<>(createdCopiaFumetto, HttpStatus.CREATED);
+        Optional<CopiaFumetto> nuovaCopiaOpt = copiaFumettoService.creaCopiaFumetto(fumettoId, copiaFumetto);
+
+        if (nuovaCopiaOpt.isPresent()) {
+            return new ResponseEntity<>(nuovaCopiaOpt.get(), HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Fumetto non trovato
+        }
     }
 
     @GetMapping("/get-all")
@@ -92,26 +106,7 @@ public class CopiaFumettoController {
         return ResponseEntity.ok("Prezzo aggiornato con successo.");
     }
 
-    /**
-     * Crea una nuova copia di fumetto associata a un fumetto esistente.
-     * POST /api/copie-fumetto/fumetto/{fumettoId}
-     * @param fumettoId L'ID del fumetto a cui associare la copia.
-     * @param copiaFumetto La copia del fumetto da creare.
-     * @return 201 CREATED con la copia del fumetto, o 404 NOT FOUND se il fumetto non esiste.
-     */
-    @PostMapping(path = "/create-copia-fumetto/{fumettoId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CopiaFumetto> creaCopiaFumetto(
-            @PathVariable Long fumettoId,
-            @Valid @RequestBody CopiaFumetto copiaFumetto) {
 
-        Optional<CopiaFumetto> nuovaCopiaOpt = copiaFumettoService.creaCopiaFumetto(fumettoId, copiaFumetto);
-
-        if (nuovaCopiaOpt.isPresent()) {
-            return new ResponseEntity<>(nuovaCopiaOpt.get(), HttpStatus.CREATED);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Fumetto non trovato
-        }
-    }
 
     @GetMapping("/filtro-prezzo")
     public ResponseEntity<List<CopiaFumetto>> getByPrezzoRange(@RequestParam BigDecimal prezzoMin,
